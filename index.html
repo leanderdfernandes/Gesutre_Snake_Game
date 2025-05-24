@@ -3,66 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gesture-Controlled Snake Game</title>
+    <title>Retro Gesture Snake</title>
     <script src="https://cdn.jsdelivr.net/npm/handtrackjs@0.1.7/dist/handtrack.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        canvas { border: 2px solid #000; }
-        #game-container { display: none; }
-        #start-page, #tutorial-page { height: 100vh; }
+        body { font-family: 'Press Start 2P', cursive; }
+        canvas { border: 2px solid #fff; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+        #game-container, #tutorial-page { display: none; }
+        #start-page { 
+            height: 100vh; 
+            background: linear-gradient(135deg, #ff007a, #00ddeb);
+            position: relative;
+            overflow: hidden;
+        }
+        #start-page::before, #tutorial-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+        }
         #video { display: none; }
+        .retro-btn {
+            background: #ff007a;
+            color: #fff;
+            padding: 1rem 2rem;
+            border: 4px solid #fff;
+            text-shadow: 2px 2px #000;
+            transition: all 0.2s;
+        }
+        .retro-btn:hover {
+            background: #00ddeb;
+            transform: scale(1.1);
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-black text-white">
     <!-- Start Page -->
-    <div id="start-page" class="flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-        <h1 class="text-5xl font-bold mb-8">Gesture-Controlled Snake Game</h1>
-        <button id="start-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg mb-4">Start Game</button>
-        <button id="tutorial-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg mb-4">Tutorial</button>
+    <div id="start-page" class="flex flex-col items-center justify-center">
+        <h1 class="text-4xl mb-8 text-center pixel-text">Retro Gesture Snake</h1>
+        <button id="start-btn" class="retro-btn mb-4">Start Game</button>
+        <button id="tutorial-btn" class="retro-btn mb-4">How to Play</button>
         <div class="flex flex-col items-center">
-            <label for="snake-color" class="text-lg mb-2">Snake Color:</label>
-            <select id="snake-color" class="p-2 rounded text-black">
-                <option value="black">Black</option>
-                <option value="red">Red</option>
-                <option value="green">Green</option>
+            <label for="snake-skin" class="text-lg mb-2">Snake Skin:</label>
+            <select id="snake-skin" class="p-2 rounded bg-black text-white border-2 border-white">
+                <option value="classic">Classic Pixel</option>
+                <option value="neon">Neon Grid</option>
+                <option value="vaporwave">Vaporwave</option>
             </select>
             <label for="game-speed" class="text-lg mt-4 mb-2">Difficulty:</label>
-            <select id="game-speed" class="p-2 rounded text-black">
+            <select id="game-speed" class="p-2 rounded bg-black text-white border-2 border-white">
                 <option value="15">Easy</option>
                 <option value="20">Medium</option>
                 <option value="25">Hard</option>
-            </select>
-            <label for="theme" class="text-lg mt-4 mb-2">Theme:</label>
-            <select id="theme" class="p-2 rounded text-black">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="neon">Neon</option>
             </select>
         </div>
     </div>
 
     <!-- Tutorial Page -->
-    <div id="tutorial-page" class="hidden flex flex-col items-center justify-center bg-gray-800 text-white">
-        <h2 class="text-3xl font-bold mb-4">How to Play</h2>
-        <p class="text-lg mb-4">Use hand gestures to control the snake:</p>
-        <ul class="list-disc mb-4">
-            <li>Move hand left: Snake moves left</li>
-            <li>Move hand right: Snake moves right</li>
-            <li>Move hand up: Snake moves up</li>
-            <li>Move hand down: Snake moves down</li>
+    <div id="tutorial-page" class="flex flex-col items-center justify-center">
+        <h2 class="text-2xl mb-4">How to Play</h2>
+        <p class="text-sm mb-4 text-center max-w-md">Control the snake with finger gestures:</p>
+        <ul class="list-disc mb-4 text-sm max-w-md">
+            <li>Index finger up: Move left</li>
+            <li>Pinky up: Move right</li>
+            <li>Index + middle up: Move up</li>
+            <li>All fingers down: Move down</li>
         </ul>
-        <button id="back-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg">Back to Start</button>
+        <p class="text-sm mb-4">Eat green food (10 points) or yellow stars (10 points + speed boost). Avoid obstacles!</p>
+        <p id="webcam-error" class="text-sm mb-4 text-red-400 hidden">Webcam not detected. Use arrow keys to play.</p>
+        <button id="back-btn" class="retro-btn">Back to Start</button>
     </div>
 
     <!-- Game Container -->
-    <div id="game-container" class="flex flex-col items-center">
+    <div id="game-container" class="flex flex-col items-center justify-center min-h-screen">
         <canvas id="gameCanvas" width="800" height="600"></canvas>
-        <p id="score" class="text-xl font-bold mt-4">Score: 0</p>
-        <p id="high-score" class="text-xl font-bold">High Score: 0</p>
+        <p id="score" class="text-lg mt-4">Score: 0</p>
+        <p id="high-score" class="text-lg">High Score: 0</p>
         <video id="video" autoplay></video>
     </div>
 
     <script>
+        // Initialize Handtrack.js
         const modelParams = {
             flipHorizontal: true,
             maxNumBoxes: 1,
@@ -72,16 +104,28 @@
 
         let model;
         let isGameRunning = false;
-        let snakeColor = localStorage.getItem('snakeColor') || 'black';
+        let snakeSkin = localStorage.getItem('snakeSkin') || 'classic';
         let gameSpeed = parseInt(localStorage.getItem('gameSpeed') || '20');
-        let theme = localStorage.getItem('theme') || 'light';
+        let speedBoostActive = false;
+        let speedBoostEndTime = 0;
+        let webcamReady = false;
 
-        // Initialize Handtrack.js
         handTrack.load(modelParams).then(lmodel => {
             model = lmodel;
             handTrack.startVideo(document.getElementById('video')).then(status => {
-                if (status) console.log('Video started');
+                if (status) {
+                    console.log('Webcam started successfully');
+                    webcamReady = true;
+                } else {
+                    console.error('Failed to start webcam');
+                    document.getElementById('webcam-error').classList.remove('hidden');
+                }
+            }).catch(err => {
+                console.error('Webcam initialization error:', err);
+                document.getElementById('webcam-error').classList.remove('hidden');
             });
+        }).catch(err => {
+            console.error('Handtrack.js loading error:', err);
         });
 
         // UI Elements
@@ -91,36 +135,38 @@
         const startBtn = document.getElementById('start-btn');
         const tutorialBtn = document.getElementById('tutorial-btn');
         const backBtn = document.getElementById('back-btn');
-        const snakeColorSelect = document.getElementById('snake-color');
+        const snakeSkinSelect = document.getElementById('snake-skin');
         const gameSpeedSelect = document.getElementById('game-speed');
-        const themeSelect = document.getElementById('theme');
 
         // Set saved preferences
-        snakeColorSelect.value = snakeColor;
+        snakeSkinSelect.value = snakeSkin;
         gameSpeedSelect.value = gameSpeed;
-        themeSelect.value = theme;
 
         // Event Listeners
         startBtn.addEventListener('click', () => {
+            console.log('Start button clicked');
             startPage.style.display = 'none';
-            gameContainer.style.display = 'block';
-            localStorage.setItem('snakeColor', snakeColorSelect.value);
+            gameContainer.style.display = 'flex';
+            tutorialPage.style.display = 'none';
+            localStorage.setItem('snakeSkin', snakeSkinSelect.value);
             localStorage.setItem('gameSpeed', gameSpeedSelect.value);
-            localStorage.setItem('theme', themeSelect.value);
-            snakeColor = snakeColorSelect.value;
+            snakeSkin = snakeSkinSelect.value;
             gameSpeed = parseInt(gameSpeedSelect.value);
-            theme = themeSelect.value;
             startGame();
         });
 
         tutorialBtn.addEventListener('click', () => {
+            console.log('Tutorial button clicked');
             startPage.style.display = 'none';
-            tutorialPage.classList.remove('hidden');
+            tutorialPage.style.display = 'flex';
+            gameContainer.style.display = 'none';
         });
 
         backBtn.addEventListener('click', () => {
-            tutorialPage.classList.add('hidden');
+            console.log('Back button clicked');
+            tutorialPage.style.display = 'none';
             startPage.style.display = 'flex';
+            gameContainer.style.display = 'none';
         });
 
         // Game Logic
@@ -131,6 +177,8 @@
 
         let snake = [{ x: 400, y: 300 }];
         let food = { x: 200, y: 200 };
+        let obstacles = [];
+        let powerUp = null;
         let score = 0;
         let highScore = localStorage.getItem('highScore') || 0;
         highScoreDisplay.textContent = `High Score: ${highScore}`;
@@ -138,24 +186,38 @@
         let dy = 0;
         const snakeBlock = 10;
         let lengthOfSnake = 1;
-        let powerUp = null;
 
-        function startGame() {
-            if (isGameRunning) return;
-            isGameRunning = true;
-            snake = [{ x: 400, y: 300 }];
-            dx = 0;
-            dy = 0;
-            score = 0;
-            lengthOfSnake = 1;
-            spawnFood();
-            gameLoop();
+        // Load snake skin textures
+        const textures = {
+            classic: new Image(),
+            neon: new Image(),
+            vaporwave: new Image()
+        };
+        textures.classic.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJElEQVQYV2NkYGD4z8DAwMDI8N+/f2BggIBAwP//gYGBgQEAAO8MBp8J5bH4AAAAAElFTkSuQmCC';
+        textures.neon.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAI0lEQVQYV2NkYGD4z8DAwMDI8N+/f2BggIBAwP//gYGBgQEApx0GkgOJDgAAAABJRU5ErkJggg==';
+        textures.vaporwave.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJklEQVQYV2NkYGD4z8DAwMDI8N+/f2BggIBAwP//gYGBgQEAryUGoA2o2wAAAABJRU5ErkJggg==';
+
+        function generateObstacles() {
+            obstacles = [];
+            for (let i = 0; i < 10; i++) {
+                let x, y;
+                do {
+                    x = Math.round(Math.random() * (canvas.width - snakeBlock) / 10) * 10;
+                    y = Math.round(Math.random() * (canvas.height - snakeBlock) / 10) * 10;
+                } while (x === food.x && y === food.y || (x === snake[0].x && y === snake[0].y));
+                obstacles.push({ x, y });
+            }
         }
 
         function spawnFood() {
-            food.x = Math.round(Math.random() * (canvas.width - snakeBlock) / 10) * 10;
-            food.y = Math.round(Math.random() * (canvas.height - snakeBlock) / 10) * 10;
-            if (Math.random() < 0.1) { // 10% chance for power-up
+            let valid = false;
+            while (!valid) {
+                food.x = Math.round(Math.random() * (canvas.width - snakeBlock) / 10) * 10;
+                food.y = Math.round(Math.random() * (canvas.height - snakeBlock) / 10) * 10;
+                valid = !obstacles.some(o => o.x === food.x && o.y === food.y) && 
+                        !snake.some(s => s.x === food.x && s.y === food.y);
+            }
+            if (Math.random() < 0.1) {
                 powerUp = { x: food.x, y: food.y };
             } else {
                 powerUp = null;
@@ -163,25 +225,48 @@
         }
 
         function draw() {
-            // Set theme
-            ctx.fillStyle = theme === 'light' ? '#f0f0f0' : theme === 'dark' ? '#333' : '#000';
+            // Draw retro grid background
+            ctx.fillStyle = '#111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#00ddeb';
+            ctx.lineWidth = 0.5;
+            for (let x = 0; x <= canvas.width; x += snakeBlock) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= canvas.height; y += snakeBlock) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
 
             // Draw snake
-            ctx.fillStyle = snakeColor;
+            const pattern = ctx.createPattern(textures[snakeSkin], 'repeat');
+            ctx.fillStyle = pattern;
             snake.forEach(segment => {
                 ctx.fillRect(segment.x, segment.y, snakeBlock, snakeBlock);
             });
 
             // Draw food
-            ctx.fillStyle = 'green';
+            ctx.fillStyle = '#00ff00';
             ctx.fillRect(food.x, food.y, snakeBlock, snakeBlock);
 
             // Draw power-up
             if (powerUp) {
-                ctx.fillStyle = 'yellow';
-                ctx.fillRect(powerUp.x, powerUp.y, snakeBlock, snakeBlock);
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                ctx.arc(food.x + snakeBlock / 2, food.y + snakeBlock / 2, snakeBlock / 2, 0, Math.PI * 2);
+                ctx.fill();
             }
+
+            // Draw obstacles
+            ctx.fillStyle = '#666';
+            obstacles.forEach(o => {
+                ctx.fillRect(o.x, o.y, snakeBlock, snakeBlock);
+            });
 
             // Update score
             scoreDisplay.textContent = `Score: ${score}`;
@@ -191,13 +276,22 @@
             const head = { x: snake[0].x + dx, y: snake[0].y + dy };
             snake.unshift(head);
 
-            // Check food collision
+            // Check food/power-up collision
             if (head.x === food.x && head.y === food.y) {
-                score += powerUp ? 20 : 10; // Power-up doubles points
+                score += powerUp ? 10 : 10;
                 lengthOfSnake += powerUp ? 1 : 2;
+                if (powerUp) {
+                    speedBoostActive = true;
+                    speedBoostEndTime = Date.now() + 5000;
+                }
                 spawnFood();
             } else {
                 snake.pop();
+            }
+
+            // Check speed boost expiration
+            if (speedBoostActive && Date.now() > speedBoostEndTime) {
+                speedBoostActive = false;
             }
 
             // Check self-collision
@@ -213,6 +307,12 @@
                 endGame();
                 return;
             }
+
+            // Check obstacle collision
+            if (!speedBoostActive && obstacles.some(o => o.x === head.x && o.y === head.y)) {
+                endGame();
+                return;
+            }
         }
 
         function endGame() {
@@ -225,45 +325,72 @@
             alert('Game Over! Press OK to return to start page.');
             gameContainer.style.display = 'none';
             startPage.style.display = 'flex';
+            tutorialPage.style.display = 'none';
+        }
+
+        function startGame() {
+            if (isGameRunning) return;
+            isGameRunning = true;
+            snake = [{ x: 400, y: 300 }];
+            dx = 0;
+            dy = 0;
+            score = 0;
+            lengthOfSnake = 1;
+            speedBoostActive = false;
+            generateObstacles();
+            spawnFood();
+            gameLoop();
         }
 
         function gameLoop() {
             if (!isGameRunning) return;
-            model.detect(document.getElementById('video')).then(predictions => {
-                if (predictions.length > 0) {
-                    const hand = predictions[0].bbox;
-                    const centerX = hand[0] + hand[2] / 2;
-                    const centerY = hand[1] + hand[3] / 2;
-                    const videoWidth = document.getElementById('video').videoWidth;
+            if (webcamReady) {
+                model.detect(document.getElementById('video')).then(predictions => {
+                    if (predictions.length > 0) {
+                        const hand = predictions[0].bbox;
+                        const width = hand[2];
+                        const height = hand[3];
+                        const centerX = hand[0] + width / 2;
+                        const videoWidth = document.getElementById('video').videoWidth;
 
-                    // Map hand position to directions
-                    if (centerX < videoWidth / 3) { // Left
-                        dx = -snakeBlock;
-                        dy = 0;
-                    } else if (centerX > 2 * videoWidth / 3) { // Right
-                        dx = snakeBlock;
-                        dy = 0;
-                    } else if (centerY < videoWidth / 3) { // Up
-                        dx = 0;
-                        dy = -snakeBlock;
-                    } else if (centerY > 2 * videoWidth / 3) { // Down
-                        dx = 0;
-                        dy = snakeBlock;
+                        // Simulate finger gestures
+                        if (width < 100 && centerX < videoWidth / 3) { // Index finger
+                            dx = -snakeBlock;
+                            dy = 0;
+                        } else if (width < 100 && centerX > 2 * videoWidth / 3) { // Pinky
+                            dx = snakeBlock;
+                            dy = 0;
+                        } else if (height > 150 && centerX > videoWidth / 3 && centerX < 2 * videoWidth / 3) { // Index + middle
+                            dx = 0;
+                            dy = -snakeBlock;
+                        } else if (width > 150) { // All fingers down
+                            dx = 0;
+                            dy = snakeBlock;
+                        }
                     }
-                }
+                    update();
+                    draw();
+                    setTimeout(gameLoop, 1000 / (speedBoostActive ? gameSpeed * 2 : gameSpeed));
+                }).catch(err => {
+                    console.error('Hand detection error:', err);
+                });
+            } else {
                 update();
                 draw();
-                setTimeout(gameLoop, 1000 / gameSpeed);
-            });
+                setTimeout(gameLoop, 1000 / (speedBoostActive ? gameSpeed * 2 : gameSpeed));
+            }
         }
 
         // Keyboard controls for fallback
         document.addEventListener('keydown', e => {
             if (e.key === 'q') {
+                console.log('Quit key pressed');
                 isGameRunning = false;
                 gameContainer.style.display = 'none';
                 startPage.style.display = 'flex';
+                tutorialPage.style.display = 'none';
             } else if (e.key === 'r') {
+                console.log('Restart key pressed');
                 startGame();
             } else if (e.key === 'ArrowLeft' && dx === 0) {
                 dx = -snakeBlock;
