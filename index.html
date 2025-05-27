@@ -415,11 +415,16 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Initialize elements at the top
+            const statusElement = document.getElementById('gestureStatus');
+            const gestureIndicator = document.getElementById('gestureIndicator');
+
             // Draw video and landmarks (mirrored)
             ctx.save();
             ctx.scale(-1, 1);
             ctx.translate(-canvas.width, 0);
             ctx.drawImage(document.getElementById('video'), 0, 0, canvas.width, canvas.height);
+
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 const landmarks = results.multiHandLandmarks[0];
                 console.log('Landmarks detected:', JSON.stringify(landmarks.slice(0, 5), null, 2));
@@ -434,8 +439,6 @@
 
                 // Detect gesture
                 const gesture = detectGestureFromLandmarks(landmarks);
-                const statusElement = document.getElementById('gestureStatus');
-                const gestureIndicator = document.getElementById('gestureIndicator');
                 if (gesture && gesture !== lastGesture) {
                     console.log(`Detected gesture: ${gesture}`);
                     processGesture(gesture);
