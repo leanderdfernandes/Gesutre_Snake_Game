@@ -3,407 +3,945 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Gesture Snake</title>
-    <script src="https://cdn.jsdelivr.net/npm/handtrackjs@0.1.7/dist/handtrack.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Premium Snake Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mediapipe/0.5.1075/mediapipe.min.js"></script>
     <style>
-        body { font-family: 'Press Start 2P', cursive; }
-        canvas { border: 2px solid #fff; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
-        #game-container, #tutorial-page { display: none; }
-        #start-page { 
-            height: 100vh; 
-            background: linear-gradient(135deg, #ff007a, #00ddeb);
-            position: relative;
-            overflow: hidden;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        #start-page::before, #tutorial-page::before {
-            content: '';
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .menu-btn {
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,255,0,0.3);
+            font-family: inherit;
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,255,0,0.5);
+        }
+
+        .game-canvas {
+            background: linear-gradient(135deg, #2d5a27, #3d7c47);
+            border: 4px solid #00ff00;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,255,0,0.5);
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            font-size: 1.5em;
+            color: #00ff00;
+        }
+
+        .powerup-indicator {
+            padding: 10px;
+            border-radius: 5px;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .control-selection {
+            margin: 20px 0;
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #00ff00;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn.selected {
+            background: #00ff00;
+            color: black;
+        }
+
+        .tutorial-content {
+            background: rgba(0,0,0,0.8);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .gesture-demo {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .gesture-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .gesture-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        #video {
+            width: 300px;
+            height: 225px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .landmarks-canvas {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.1),
-                rgba(0, 0, 0, 0.1) 2px,
-                transparent 2px,
-                transparent 4px
-            );
             pointer-events: none;
         }
-        #video { display: none; }
-        .retro-btn {
-            background: #ff007a;
-            color: #fff;
-            padding: 1rem 2rem;
-            border: 4px solid #fff;
-            text-shadow: 2px 2px #000;
-            transition: all 0.2s;
+
+        .game-over-screen {
+            background: rgba(0,0,0,0.9);
+            padding: 40px;
+            border-radius: 15px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
         }
-        .retro-btn:hover {
-            background: #00ddeb;
-            transform: scale(1.1);
+
+        .glow-effect {
+            animation: glow 1s ease-in-out infinite alternate;
         }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px currentColor); }
+            to { filter: drop-shadow(0 0 15px currentColor); }
+        }
+
+        .invincible { color: #ffd700; }
+        .speed-boost { color: #00ccff; }
+        .slow-motion { color: #90EE90; }
     </style>
 </head>
-<body class="bg-black text-white">
-    <!-- Start Page -->
-    <div id="start-page" class="flex flex-col items-center justify-center">
-        <h1 class="text-4xl mb-8 text-center pixel-text">Retro Gesture Snake</h1>
-        <button id="start-btn" class="retro-btn mb-4">Start Game</button>
-        <button id="tutorial-btn" class="retro-btn mb-4">How to Play</button>
-        <div class="flex flex-col items-center">
-            <label for="snake-skin" class="text-lg mb-2">Snake Skin:</label>
-            <select id="snake-skin" class="p-2 rounded bg-black text-white border-2 border-white">
-                <option value="classic">Classic Pixel</option>
-                <option value="neon">Neon Grid</option>
-                <option value="vaporwave">Vaporwave</option>
-            </select>
-            <label for="game-speed" class="text-lg mt-4 mb-2">Difficulty:</label>
-            <select id="game-speed" class="p-2 rounded bg-black text-white border-2 border-white">
-                <option value="15">Easy</option>
-                <option value="20">Medium</option>
-                <option value="25">Hard</option>
-            </select>
+<body>
+    <div class="container">
+        <!-- Main Menu -->
+        <div id="mainMenu" class="screen active">
+            <h1>🐍 SNAKE MASTER 🐍</h1>
+            <button class="menu-btn" onclick="showControlSelection()">START GAME</button>
+            <button class="menu-btn" onclick="showTutorial()">TUTORIAL</button>
+            <button class="menu-btn" onclick="showCreatorInfo()">CREATOR INFO</button>
+            <div class="score">High Score: <span id="highScore">0</span></div>
+        </div>
+
+        <!-- Control Selection -->
+        <div id="controlSelection" class="screen">
+            <h1>Choose Your Control Method</h1>
+            <div class="control-selection">
+                <button class="control-btn" id="gestureBtn" onclick="selectControl('gesture')">
+                    🤚 Hand Gestures
+                </button>
+                <button class="control-btn selected" id="keyboardBtn" onclick="selectControl('keyboard')">
+                    ⌨️ Keyboard
+                </button>
+            </div>
+            <button class="menu-btn" onclick="startGame()">START PLAYING</button>
+            <button class="menu-btn" onclick="showMainMenu()">BACK</button>
+        </div>
+
+        <!-- Tutorial -->
+        <div id="tutorial" class="screen">
+            <div class="tutorial-content">
+                <h1>How to Play</h1>
+                
+                <div class="gesture-demo">
+                    <div class="gesture-item">
+                        <div class="gesture-icon">👆</div>
+                        <div>Index Up = Move Up</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">👍</div>
+                        <div>Thumb Left = Move Left</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">🤙</div>
+                        <div>Pinky Right = Move Right</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">✊</div>
+                        <div>Closed Fist = Move Down</div>
+                    </div>
+                </div>
+
+                <h3>Power-ups:</h3>
+                <div class="gesture-demo">
+                    <div class="gesture-item">
+                        <div class="gesture-icon">🍎</div>
+                        <div>Apple (10 pts)</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">🍒</div>
+                        <div>Cherry (20 pts)</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">🥕</div>
+                        <div>Golden Carrot - Invincibility (50 pts)</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">🌿</div>
+                        <div>Slow Motion (30 pts)</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">⚡</div>
+                        <div>Speed Boost (40 pts)</div>
+                    </div>
+                    <div class="gesture-item">
+                        <div class="gesture-icon">🪨</div>
+                        <div>Rocks - Avoid them!</div>
+                    </div>
+                </div>
+
+                <div id="gestureDemo" style="display: none;">
+                    <h3>Gesture Recognition Test</h3>
+                    <video id="video" autoplay muted></video>
+                    <canvas id="landmarksCanvas" class="landmarks-canvas" width="300" height="225"></canvas>
+                    <div id="gestureStatus">Show your hand to the camera</div>
+                </div>
+
+                <button class="menu-btn" onclick="toggleGestureDemo()">Test Gestures</button>
+                <button class="menu-btn" onclick="showMainMenu()">BACK TO MENU</button>
+            </div>
+        </div>
+
+        <!-- Creator Info -->
+        <div id="creatorInfo" class="screen">
+            <div class="tutorial-content">
+                <h1>About the Creator</h1>
+                <p style="font-size: 1.2em; line-height: 1.6; margin: 20px 0;">
+                    This premium Snake game was crafted with cutting-edge web technologies including MediaPipe for hand gesture recognition, advanced SVG graphics, and smooth game mechanics.
+                </p>
+                <p style="margin: 20px 0;">
+                    Features include dynamic power-ups, progressive difficulty, and an immersive gaming experience that combines classic gameplay with modern innovation.
+                </p>
+                <button class="menu-btn" onclick="showMainMenu()">BACK TO MENU</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="hud">
+                <div class="score">Score: <span id="gameScore">0</span></div>
+                <div class="score">High: <span id="gameHighScore">0</span></div>
+                <div class="powerup-indicator" id="powerupIndicator">Ready to Play!</div>
+            </div>
+            <canvas id="gameCanvas" class="game-canvas" width="720" height="540"></canvas>
+            <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.7;">
+                <span id="controlHint">Use WASD or Arrow Keys to move</span>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="game-over-screen" style="display: none;">
+            <h2>Game Over!</h2>
+            <div class="score" style="font-size: 2em; margin: 20px 0;">
+                Final Score: <span id="finalScore">0</span>
+            </div>
+            <div id="newHighScore" style="color: #ffd700; margin: 10px 0; display: none;">
+                🎉 NEW HIGH SCORE! 🎉
+            </div>
+            <button class="menu-btn" onclick="restartGame()">PLAY AGAIN</button>
+            <button class="menu-btn" onclick="showMainMenu()">MAIN MENU</button>
         </div>
     </div>
 
-    <!-- Tutorial Page -->
-    <div id="tutorial-page" class="flex flex-col items-center justify-center">
-        <h2 class="text-2xl mb-4">How to Play</h2>
-        <p class="text-sm mb-4 text-center max-w-md">Control the snake with finger gestures:</p>
-        <ul class="list-disc mb-4 text-sm max-w-md">
-            <li>Index finger up: Move left</li>
-            <li>Pinky up: Move right</li>
-            <li>Index + middle up: Move up</li>
-            <li>All fingers down: Move down</li>
-        </ul>
-        <p class="text-sm mb-4">Eat green food (10 points) or yellow stars (10 points + speed boost). Avoid obstacles!</p>
-        <p id="webcam-error" class="text-sm mb-4 text-red-400 hidden">Webcam not detected. Use arrow keys to play.</p>
-        <button id="back-btn" class="retro-btn">Back to Start</button>
-    </div>
-
-    <!-- Game Container -->
-    <div id="game-container" class="flex flex-col items-center justify-center min-h-screen">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-        <p id="score" class="text-lg mt-4">Score: 0</p>
-        <p id="high-score" class="text-lg">High Score: 0</p>
-        <video id="video" autoplay></video>
-    </div>
-
     <script>
-        // Initialize Handtrack.js
-        const modelParams = {
-            flipHorizontal: true,
-            maxNumBoxes: 1,
-            iouThreshold: 0.5,
-            scoreThreshold: 0.8,
+        // Game state
+        let gameState = {
+            canvas: null,
+            ctx: null,
+            snake: [],
+            direction: {x: 0, y: 0},
+            food: null,
+            obstacles: [],
+            score: 0,
+            highScore: 0,
+            gameRunning: false,
+            gridSize: 20,
+            gameSpeed: 150,
+            baseSpeed: 150,
+            controlMethod: 'keyboard',
+            powerups: {
+                invincible: 0,
+                speedBoost: 0,
+                slowMotion: 0
+            }
         };
 
-        let model;
-        let isGameRunning = false;
-        let snakeSkin = localStorage.getItem('snakeSkin') || 'classic';
-        let gameSpeed = parseInt(localStorage.getItem('gameSpeed') || '20');
-        let speedBoostActive = false;
-        let speedBoostEndTime = 0;
-        let webcamReady = false;
+        // MediaPipe setup
+        let hands, camera, gestureRecognizer;
+        let lastGesture = null;
+        let gestureConfidence = 0;
 
-        handTrack.load(modelParams).then(lmodel => {
-            model = lmodel;
-            handTrack.startVideo(document.getElementById('video')).then(status => {
-                if (status) {
-                    console.log('Webcam started successfully');
-                    webcamReady = true;
-                } else {
-                    console.error('Failed to start webcam');
-                    document.getElementById('webcam-error').classList.remove('hidden');
-                }
-            }).catch(err => {
-                console.error('Webcam initialization error:', err);
-                document.getElementById('webcam-error').classList.remove('hidden');
-            });
-        }).catch(err => {
-            console.error('Handtrack.js loading error:', err);
-        });
+        // Game elements
+        const foodTypes = [
+            {type: 'apple', emoji: '🍎', points: 10, color: '#ff4444'},
+            {type: 'cherry', emoji: '🍒', points: 20, color: '#ff1493'},
+            {type: 'carrot', emoji: '🥕', points: 50, color: '#ffd700', effect: 'invincible'},
+            {type: 'herb', emoji: '🌿', points: 30, color: '#90EE90', effect: 'slowMotion'},
+            {type: 'energy', emoji: '⚡', points: 40, color: '#00ccff', effect: 'speedBoost'}
+        ];
 
-        // UI Elements
-        const startPage = document.getElementById('start-page');
-        const tutorialPage = document.getElementById('tutorial-page');
-        const gameContainer = document.getElementById('game-container');
-        const startBtn = document.getElementById('start-btn');
-        const tutorialBtn = document.getElementById('tutorial-btn');
-        const backBtn = document.getElementById('back-btn');
-        const snakeSkinSelect = document.getElementById('snake-skin');
-        const gameSpeedSelect = document.getElementById('game-speed');
+        // Initialize game
+        function initGame() {
+            gameState.canvas = document.getElementById('gameCanvas');
+            gameState.ctx = gameState.canvas.getContext('2d');
+            gameState.highScore = parseInt(localStorage.getItem('snakeHighScore') || '0');
+            updateHighScoreDisplay();
+            
+            // Generate initial environment
+            generateEnvironment();
+        }
 
-        // Set saved preferences
-        snakeSkinSelect.value = snakeSkin;
-        gameSpeedSelect.value = gameSpeed;
-
-        // Event Listeners
-        startBtn.addEventListener('click', () => {
-            console.log('Start button clicked');
-            startPage.style.display = 'none';
-            gameContainer.style.display = 'flex';
-            tutorialPage.style.display = 'none';
-            localStorage.setItem('snakeSkin', snakeSkinSelect.value);
-            localStorage.setItem('gameSpeed', gameSpeedSelect.value);
-            snakeSkin = snakeSkinSelect.value;
-            gameSpeed = parseInt(gameSpeedSelect.value);
-            startGame();
-        });
-
-        tutorialBtn.addEventListener('click', () => {
-            console.log('Tutorial button clicked');
-            startPage.style.display = 'none';
-            tutorialPage.style.display = 'flex';
-            gameContainer.style.display = 'none';
-        });
-
-        backBtn.addEventListener('click', () => {
-            console.log('Back button clicked');
-            tutorialPage.style.display = 'none';
-            startPage.style.display = 'flex';
-            gameContainer.style.display = 'none';
-        });
-
-        // Game Logic
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreDisplay = document.getElementById('score');
-        const highScoreDisplay = document.getElementById('high-score');
-
-        let snake = [{ x: 400, y: 300 }];
-        let food = { x: 200, y: 200 };
-        let obstacles = [];
-        let powerUp = null;
-        let score = 0;
-        let highScore = localStorage.getItem('highScore') || 0;
-        highScoreDisplay.textContent = `High Score: ${highScore}`;
-        let dx = 0;
-        let dy = 0;
-        const snakeBlock = 10;
-        let lengthOfSnake = 1;
-
-        // Load snake skin textures
-        const textures = {
-            classic: new Image(),
-            neon: new Image(),
-            vaporwave: new Image()
-        };
-        textures.classic.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJElEQVQYV2NkYGD4z8DAwMDI8N+/f2BggIBAwP//gYGBgQEAAO8MBp8J5bH4AAAAAElFTkSuQmCC';
-        textures.neon.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAI0lEQVQYV2NkYGD4z8DAwMDI8N+/f2BggIBAwP//gYGBgQEApx0GkgOJDgAAAABJRU5ErkJggg==';
-        textures.vaporwave.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJklEQVQYV2NkYGD4z8DAwMDI8N+/f2BggIBAwP//gYGBgQEAryUGoA2o2wAAAABJRU5ErkJggg==';
-
-        function generateObstacles() {
-            obstacles = [];
-            for (let i = 0; i < 10; i++) {
-                let x, y;
+        function generateEnvironment() {
+            gameState.obstacles = [];
+            // Add random rocks
+            for(let i = 0; i < 8; i++) {
+                let pos;
                 do {
-                    x = Math.round(Math.random() * (canvas.width - snakeBlock) / 10) * 10;
-                    y = Math.round(Math.random() * (canvas.height - snakeBlock) / 10) * 10;
-                } while (x === food.x && y === food.y || (x === snake[0].x && y === snake[0].y));
-                obstacles.push({ x, y });
+                    pos = {
+                        x: Math.floor(Math.random() * (gameState.canvas.width / gameState.gridSize)) * gameState.gridSize,
+                        y: Math.floor(Math.random() * (gameState.canvas.height / gameState.gridSize)) * gameState.gridSize
+                    };
+                } while(pos.x < gameState.gridSize * 4 && pos.y < gameState.gridSize * 4);
+                
+                gameState.obstacles.push(pos);
             }
         }
 
-        function spawnFood() {
-            let valid = false;
-            while (!valid) {
-                food.x = Math.round(Math.random() * (canvas.width - snakeBlock) / 10) * 10;
-                food.y = Math.round(Math.random() * (canvas.height - snakeBlock) / 10) * 10;
-                valid = !obstacles.some(o => o.x === food.x && o.y === food.y) && 
-                        !snake.some(s => s.x === food.x && s.y === food.y);
-            }
-            if (Math.random() < 0.1) {
-                powerUp = { x: food.x, y: food.y };
-            } else {
-                powerUp = null;
-            }
+        function startNewGame() {
+            gameState.snake = [
+                {x: gameState.gridSize * 4, y: gameState.gridSize * 4},
+                {x: gameState.gridSize * 3, y: gameState.gridSize * 4},
+                {x: gameState.gridSize * 2, y: gameState.gridSize * 4}
+            ];
+            gameState.direction = {x: gameState.gridSize, y: 0};
+            gameState.score = 0;
+            gameState.gameSpeed = gameState.baseSpeed;
+            gameState.powerups = {invincible: 0, speedBoost: 0, slowMotion: 0};
+            
+            generateFood();
+            generateEnvironment();
+            updateScore();
+            updatePowerupIndicator();
+            
+            document.getElementById('controlHint').textContent = 
+                gameState.controlMethod === 'gesture' 
+                ? 'Use hand gestures to control the snake' 
+                : 'Use WASD or Arrow Keys to move';
         }
 
-        function draw() {
-            // Draw retro grid background
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#00ddeb';
-            ctx.lineWidth = 0.5;
-            for (let x = 0; x <= canvas.width; x += snakeBlock) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
+        function generateFood() {
+            let validPosition = false;
+            let newFood;
+            
+            while(!validPosition) {
+                newFood = {
+                    x: Math.floor(Math.random() * (gameState.canvas.width / gameState.gridSize)) * gameState.gridSize,
+                    y: Math.floor(Math.random() * (gameState.canvas.height / gameState.gridSize)) * gameState.gridSize,
+                    ...foodTypes[Math.floor(Math.random() * foodTypes.length)]
+                };
+                
+                validPosition = !gameState.snake.some(segment => 
+                    segment.x === newFood.x && segment.y === newFood.y
+                ) && !gameState.obstacles.some(obstacle => 
+                    obstacle.x === newFood.x && obstacle.y === newFood.y
+                );
             }
-            for (let y = 0; y <= canvas.height; y += snakeBlock) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-
-            // Draw snake
-            const pattern = ctx.createPattern(textures[snakeSkin], 'repeat');
-            ctx.fillStyle = pattern;
-            snake.forEach(segment => {
-                ctx.fillRect(segment.x, segment.y, snakeBlock, snakeBlock);
-            });
-
-            // Draw food
-            ctx.fillStyle = '#00ff00';
-            ctx.fillRect(food.x, food.y, snakeBlock, snakeBlock);
-
-            // Draw power-up
-            if (powerUp) {
-                ctx.fillStyle = '#ffff00';
-                ctx.beginPath();
-                ctx.arc(food.x + snakeBlock / 2, food.y + snakeBlock / 2, snakeBlock / 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Draw obstacles
-            ctx.fillStyle = '#666';
-            obstacles.forEach(o => {
-                ctx.fillRect(o.x, o.y, snakeBlock, snakeBlock);
-            });
-
-            // Update score
-            scoreDisplay.textContent = `Score: ${score}`;
+            
+            gameState.food = newFood;
         }
 
-        function update() {
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-            snake.unshift(head);
+        function updateGame() {
+            if(!gameState.gameRunning) return;
 
-            // Check food/power-up collision
-            if (head.x === food.x && head.y === food.y) {
-                score += powerUp ? 10 : 10;
-                lengthOfSnake += powerUp ? 1 : 2;
-                if (powerUp) {
-                    speedBoostActive = true;
-                    speedBoostEndTime = Date.now() + 5000;
+            // Move snake
+            const head = {...gameState.snake[0]};
+            head.x += gameState.direction.x;
+            head.y += gameState.direction.y;
+
+            // Check wall collision
+            if(head.x < 0 || head.x >= gameState.canvas.width || 
+               head.y < 0 || head.y >= gameState.canvas.height) {
+                if(gameState.powerups.invincible <= 0) {
+                    gameOver();
+                    return;
+                } else {
+                    // Wrap around when invincible
+                    head.x = (head.x + gameState.canvas.width) % gameState.canvas.width;
+                    head.y = (head.y + gameState.canvas.height) % gameState.canvas.height;
                 }
-                spawnFood();
-            } else {
-                snake.pop();
             }
 
-            // Check speed boost expiration
-            if (speedBoostActive && Date.now() > speedBoostEndTime) {
-                speedBoostActive = false;
-            }
-
-            // Check self-collision
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    endGame();
+            // Check self collision
+            if(gameState.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                if(gameState.powerups.invincible <= 0) {
+                    gameOver();
                     return;
                 }
             }
 
-            // Check wall collision
-            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
-                endGame();
-                return;
-            }
-
             // Check obstacle collision
-            if (!speedBoostActive && obstacles.some(o => o.x === head.x && o.y === head.y)) {
-                endGame();
-                return;
+            if(gameState.obstacles.some(obstacle => obstacle.x === head.x && obstacle.y === head.y)) {
+                if(gameState.powerups.invincible <= 0) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            gameState.snake.unshift(head);
+
+            // Check food collision
+            if(head.x === gameState.food.x && head.y === gameState.food.y) {
+                gameState.score += gameState.food.points;
+                
+                // Apply power-up effects
+                if(gameState.food.effect) {
+                    gameState.powerups[gameState.food.effect] = 300; // 5 seconds at 60fps
+                }
+                
+                generateFood();
+                updateScore();
+                updatePowerupIndicator();
+                
+                // Increase speed slightly
+                gameState.gameSpeed = Math.max(80, gameState.gameSpeed - 2);
+            } else {
+                gameState.snake.pop();
+            }
+
+            // Update power-ups
+            Object.keys(gameState.powerups).forEach(key => {
+                if(gameState.powerups[key] > 0) {
+                    gameState.powerups[key]--;
+                    if(gameState.powerups[key] === 0) {
+                        updatePowerupIndicator();
+                    }
+                }
+            });
+
+            drawGame();
+        }
+
+        function drawGame() {
+            const ctx = gameState.ctx;
+            
+            // Clear canvas with gradient background
+            const gradient = ctx.createLinearGradient(0, 0, gameState.canvas.width, gameState.canvas.height);
+            gradient.addColorStop(0, '#2d5a27');
+            gradient.addColorStop(1, '#3d7c47');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height);
+
+            // Draw grass decoration
+            ctx.fillStyle = '#228B22';
+            for(let i = 0; i < 50; i++) {
+                const x = (i * 137) % gameState.canvas.width;
+                const y = (i * 211) % gameState.canvas.height;
+                ctx.fillRect(x, y, 3, 6);
+                ctx.fillRect(x + 2, y - 2, 3, 6);
+            }
+
+            // Draw obstacles
+            gameState.obstacles.forEach(obstacle => {
+                ctx.fillStyle = '#666';
+                ctx.beginPath();
+                ctx.arc(obstacle.x + gameState.gridSize/2, obstacle.y + gameState.gridSize/2, gameState.gridSize/2 - 2, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.fillStyle = '#888';
+                ctx.beginPath();
+                ctx.arc(obstacle.x + gameState.gridSize/2 - 3, obstacle.y + gameState.gridSize/2 - 3, gameState.gridSize/3, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            // Draw food
+            if(gameState.food) {
+                ctx.fillStyle = gameState.food.color;
+                ctx.font = `${gameState.gridSize-4}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText(
+                    gameState.food.emoji, 
+                    gameState.food.x + gameState.gridSize/2, 
+                    gameState.food.y + gameState.gridSize/2 + 6
+                );
+            }
+
+            // Draw snake with glow effects
+            gameState.snake.forEach((segment, index) => {
+                let color = '#00ff00';
+                let glowColor = '#00ff00';
+                
+                if(gameState.powerups.invincible > 0) {
+                    color = '#ffd700';
+                    glowColor = '#ffff00';
+                } else if(gameState.powerups.speedBoost > 0) {
+                    color = '#00ccff';
+                    glowColor = '#0099cc';
+                } else if(gameState.powerups.slowMotion > 0) {
+                    color = '#90EE90';
+                    glowColor = '#90EE90';
+                }
+
+                // Glow effect
+                if(gameState.powerups.invincible > 0 || gameState.powerups.speedBoost > 0 || gameState.powerups.slowMotion > 0) {
+                    ctx.shadowColor = glowColor;
+                    ctx.shadowBlur = 15;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+
+                // Snake head
+                if(index === 0) {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(segment.x + 2, segment.y + 2, gameState.gridSize - 4, gameState.gridSize - 4);
+                    
+                    // Eyes
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(segment.x + 5, segment.y + 5, 3, 3);
+                    ctx.fillRect(segment.x + 12, segment.y + 5, 3, 3);
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(segment.x + 6, segment.y + 6, 1, 1);
+                    ctx.fillRect(segment.x + 13, segment.y + 6, 1, 1);
+                }
+                // Snake body
+                else {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(segment.x + 3, segment.y + 3, gameState.gridSize - 6, gameState.gridSize - 6);
+                    
+                    // Body pattern
+                    ctx.fillStyle = index === gameState.snake.length - 1 ? '#006600' : '#008800';
+                    ctx.fillRect(segment.x + 5, segment.y + 5, gameState.gridSize - 10, gameState.gridSize - 10);
+                }
+            });
+
+            ctx.shadowBlur = 0;
+        }
+
+        function updateScore() {
+            document.getElementById('gameScore').textContent = gameState.score;
+            document.getElementById('gameHighScore').textContent = gameState.highScore;
+        }
+
+        function updatePowerupIndicator() {
+            const indicator = document.getElementById('powerupIndicator');
+            
+            if(gameState.powerups.invincible > 0) {
+                indicator.textContent = `Invincible: ${Math.ceil(gameState.powerups.invincible / 60)}s`;
+                indicator.className = 'powerup-indicator invincible glow-effect';
+            } else if(gameState.powerups.speedBoost > 0) {
+                indicator.textContent = `Speed Boost: ${Math.ceil(gameState.powerups.speedBoost / 60)}s`;
+                indicator.className = 'powerup-indicator speed-boost glow-effect';
+            } else if(gameState.powerups.slowMotion > 0) {
+                indicator.textContent = `Slow Motion: ${Math.ceil(gameState.powerups.slowMotion / 60)}s`;
+                indicator.className = 'powerup-indicator slow-motion glow-effect';
+            } else {
+                indicator.textContent = 'Ready to Play!';
+                indicator.className = 'powerup-indicator';
             }
         }
 
-        function endGame() {
-            isGameRunning = false;
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('highScore', highScore);
-                highScoreDisplay.textContent = `High Score: ${highScore}`;
+        function gameOver() {
+            gameState.gameRunning = false;
+            
+            if(gameState.score > gameState.highScore) {
+                gameState.highScore = gameState.score;
+                localStorage.setItem('snakeHighScore', gameState.highScore.toString());
+                document.getElementById('newHighScore').style.display = 'block';
+            } else {
+                document.getElementById('newHighScore').style.display = 'none';
             }
-            alert('Game Over! Press OK to return to start page.');
-            gameContainer.style.display = 'none';
-            startPage.style.display = 'flex';
-            tutorialPage.style.display = 'none';
-        }
-
-        function startGame() {
-            if (isGameRunning) return;
-            isGameRunning = true;
-            snake = [{ x: 400, y: 300 }];
-            dx = 0;
-            dy = 0;
-            score = 0;
-            lengthOfSnake = 1;
-            speedBoostActive = false;
-            generateObstacles();
-            spawnFood();
-            gameLoop();
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('gameOverScreen').style.display = 'block';
         }
 
         function gameLoop() {
-            if (!isGameRunning) return;
-            if (webcamReady) {
-                model.detect(document.getElementById('video')).then(predictions => {
-                    if (predictions.length > 0) {
-                        const hand = predictions[0].bbox;
-                        const width = hand[2];
-                        const height = hand[3];
-                        const centerX = hand[0] + width / 2;
-                        const videoWidth = document.getElementById('video').videoWidth;
-
-                        // Simulate finger gestures
-                        if (width < 100 && centerX < videoWidth / 3) { // Index finger
-                            dx = -snakeBlock;
-                            dy = 0;
-                        } else if (width < 100 && centerX > 2 * videoWidth / 3) { // Pinky
-                            dx = snakeBlock;
-                            dy = 0;
-                        } else if (height > 150 && centerX > videoWidth / 3 && centerX < 2 * videoWidth / 3) { // Index + middle
-                            dx = 0;
-                            dy = -snakeBlock;
-                        } else if (width > 150) { // All fingers down
-                            dx = 0;
-                            dy = snakeBlock;
-                        }
-                    }
-                    update();
-                    draw();
-                    setTimeout(gameLoop, 1000 / (speedBoostActive ? gameSpeed * 2 : gameSpeed));
-                }).catch(err => {
-                    console.error('Hand detection error:', err);
-                });
-            } else {
-                update();
-                draw();
-                setTimeout(gameLoop, 1000 / (speedBoostActive ? gameSpeed * 2 : gameSpeed));
+            const currentSpeed = gameState.powerups.slowMotion > 0 ? 
+                gameState.gameSpeed * 2 : 
+                gameState.powerups.speedBoost > 0 ? 
+                gameState.gameSpeed * 0.5 : 
+                gameState.gameSpeed;
+                
+            updateGame();
+            
+            if(gameState.gameRunning) {
+                setTimeout(gameLoop, currentSpeed);
             }
         }
 
-        // Keyboard controls for fallback
-        document.addEventListener('keydown', e => {
-            if (e.key === 'q') {
-                console.log('Quit key pressed');
-                isGameRunning = false;
-                gameContainer.style.display = 'none';
-                startPage.style.display = 'flex';
-                tutorialPage.style.display = 'none';
-            } else if (e.key === 'r') {
-                console.log('Restart key pressed');
-                startGame();
-            } else if (e.key === 'ArrowLeft' && dx === 0) {
-                dx = -snakeBlock;
-                dy = 0;
-            } else if (e.key === 'ArrowRight' && dx === 0) {
-                dx = snakeBlock;
-                dy = 0;
-            } else if (e.key === 'ArrowUp' && dy === 0) {
-                dx = 0;
-                dy = -snakeBlock;
-            } else if (e.key === 'ArrowDown' && dy === 0) {
-                dx = 0;
-                dy = snakeBlock;
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if(!gameState.gameRunning || gameState.controlMethod !== 'keyboard') return;
+            
+            const key = e.key.toLowerCase();
+            const currentDir = gameState.direction;
+            
+            if((key === 'w' || key === 'arrowup') && currentDir.y === 0) {
+                gameState.direction = {x: 0, y: -gameState.gridSize};
+            } else if((key === 's' || key === 'arrowdown') && currentDir.y === 0) {
+                gameState.direction = {x: 0, y: gameState.gridSize};
+            } else if((key === 'a' || key === 'arrowleft') && currentDir.x === 0) {
+                gameState.direction = {x: -gameState.gridSize, y: 0};
+            } else if((key === 'd' || key === 'arrowright') && currentDir.x === 0) {
+                gameState.direction = {x: gameState.gridSize, y: 0};
+            }
+        });
+
+        // MediaPipe gesture recognition
+        async function initMediaPipe() {
+            try {
+                const vision = await window.MediaPipe.Vision;
+                hands = new vision.HandLandmarker({
+                    baseOptions: {
+                        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+                        delegate: 'GPU'
+                    },
+                    runningMode: 'VIDEO',
+                    numHands: 1
+                });
+                
+                return true;
+            } catch(error) {
+                console.log('MediaPipe not available, using keyboard only');
+                return false;
+            }
+        }
+
+        function detectGesture(landmarks) {
+            if(!landmarks || landmarks.length === 0) return null;
+            
+            const hand = landmarks[0];
+            
+            // Finger tip and pip landmarks
+            const thumbTip = hand[4];
+            const thumbPip = hand[3];
+            const indexTip = hand[8];
+            const indexPip = hand[6];
+            const middleTip = hand[12];
+            const middlePip = hand[10];
+            const ringTip = hand[16];
+            const ringPip = hand[14];
+            const pinkyTip = hand[20];
+            const pinkyPip = hand[18];
+            
+            // Count extended fingers
+            const thumbUp = thumbTip.x > thumbPip.x; // Right hand
+            const indexUp = indexTip.y < indexPip.y;
+            const middleUp = middleTip.y < middlePip.y;
+            const ringUp = ringTip.y < ringPip.y;
+            const pinkyUp = pinkyTip.y < pinkyPip.y;
+            
+            const extendedFingers = [indexUp, middleUp, ringUp, pinkyUp].filter(Boolean).length;
+            
+            // Gesture detection
+            if(indexUp && !middleUp && !ringUp && !pinkyUp) {
+                return 'up';
+            } else if(thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
+                return 'left';
+            } else if(!thumbUp && !indexUp && !middleUp && !ringUp && pinkyUp) {
+                return 'right';
+            } else if(extendedFingers === 0) {
+                return 'down';
+            }
+            
+            return null;
+        }
+
+        function processGesture(gesture) {
+            if(!gameState.gameRunning || gameState.controlMethod !== 'gesture') return;
+            
+            const currentDir = gameState.direction;
+            
+            if(gesture === 'up' && currentDir.y === 0) {
+                gameState.direction = {x: 0, y: -gameState.gridSize};
+            } else if(gesture === 'down' && currentDir.y === 0) {
+                gameState.direction = {x: 0, y: gameState.gridSize};
+            } else if(gesture === 'left' && currentDir.x === 0) {
+                gameState.direction = {x: -gameState.gridSize, y: 0};
+            } else if(gesture === 'right' && currentDir.x === 0) {
+                gameState.direction = {x: gameState.gridSize, y: 0};
+            }
+        }
+
+        // Screen management
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showMainMenu() {
+            showScreen('mainMenu');
+            updateHighScoreDisplay();
+        }
+
+        function showControlSelection() {
+            showScreen('controlSelection');
+        }
+
+        function showTutorial() {
+            showScreen('tutorial');
+        }
+
+        function showCreatorInfo() {
+            showScreen('creatorInfo');
+        }
+
+        function selectControl(method) {
+            gameState.controlMethod = method;
+            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById(method + 'Btn').classList.add('selected');
+        }
+
+        function startGame() {
+            showScreen('gameScreen');
+            startNewGame();
+            gameState.gameRunning = true;
+            gameLoop();
+            
+            if(gameState.controlMethod === 'gesture') {
+                startCamera();
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startNewGame();
+            gameState.gameRunning = true;
+            gameLoop();
+        }
+
+        function updateHighScoreDisplay() {
+            document.getElementById('highScore').textContent = gameState.highScore;
+        }
+
+        // Camera and gesture demo
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 300, height: 225 } 
+                });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                if(hands) {
+                    processVideoFrame();
+                }
+            } catch(error) {
+                console.error('Camera access denied:', error);
+                document.getElementById('gestureStatus').textContent = 'Camera access required for gesture control';
+            }
+        }
+
+        async function processVideoFrame() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('landmarksCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            if(video.videoWidth > 0) {
+                try {
+                    const results = await hands.detectForVideo(video, performance.now());
+                    
+                    // Clear canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    if(results.landmarks && results.landmarks.length > 0) {
+                        // Draw landmarks
+                        const landmarks = results.landmarks[0];
+                        
+                        // Draw connections
+                        ctx.strokeStyle = '#00ff00';
+                        ctx.lineWidth = 2;
+                        const connections = [
+                            [0,1],[1,2],[2,3],[3,4], // Thumb
+                            [0,5],[5,6],[6,7],[7,8], // Index
+                            [0,9],[9,10],[10,11],[11,12], // Middle
+                            [0,13],[13,14],[14,15],[15,16], // Ring
+                            [0,17],[17,18],[18,19],[19,20], // Pinky
+                            [5,9],[9,13],[13,17] // Palm
+                        ];
+                        
+                        connections.forEach(([start, end]) => {
+                            ctx.beginPath();
+                            ctx.moveTo(landmarks[start].x * canvas.width, landmarks[start].y * canvas.height);
+                            ctx.lineTo(landmarks[end].x * canvas.width, landmarks[end].y * canvas.height);
+                            ctx.stroke();
+                        });
+                        
+                        // Draw landmarks
+                        ctx.fillStyle = '#ff0000';
+                        landmarks.forEach(landmark => {
+                            ctx.beginPath();
+                            ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 3, 0, 2 * Math.PI);
+                            ctx.fill();
+                        });
+                        
+                        // Detect and process gesture
+                        const gesture = detectGesture(results.landmarks);
+                        if(gesture) {
+                            lastGesture = gesture;
+                            processGesture(gesture);
+                            
+                            const gestureNames = {
+                                'up': '👆 Move Up',
+                                'down': '✊ Move Down', 
+                                'left': '👍 Move Left',
+                                'right': '🤙 Move Right'
+                            };
+                            
+                            const statusElement = document.getElementById('gestureStatus');
+                            if(statusElement) {
+                                statusElement.textContent = `Detected: ${gestureNames[gesture] || gesture}`;
+                                statusElement.style.color = '#00ff00';
+                            }
+                        } else {
+                            const statusElement = document.getElementById('gestureStatus');
+                            if(statusElement) {
+                                statusElement.textContent = 'Show clear hand gesture';
+                                statusElement.style.color = '#ffffff';
+                            }
+                        }
+                    } else {
+                        const statusElement = document.getElementById('gestureStatus');
+                        if(statusElement) {
+                            statusElement.textContent = 'No hand detected';
+                            statusElement.style.color = '#ffaa00';
+                        }
+                    }
+                } catch(error) {
+                    console.error('Gesture detection error:', error);
+                }
+            }
+            
+            if(gameState.gameRunning && gameState.controlMethod === 'gesture') {
+                requestAnimationFrame(processVideoFrame);
+            }
+        }
+
+        function toggleGestureDemo() {
+            const demo = document.getElementById('gestureDemo');
+            const btn = event.target;
+            
+            if(demo.style.display === 'none') {
+                demo.style.display = 'block';
+                btn.textContent = 'Hide Gesture Test';
+                if(hands) {
+                    startCamera();
+                } else {
+                    initMediaPipe().then(success => {
+                        if(success) {
+                            startCamera();
+                        } else {
+                            document.getElementById('gestureStatus').textContent = 'MediaPipe failed to load';
+                        }
+                    });
+                }
+            } else {
+                demo.style.display = 'none';
+                btn.textContent = 'Test Gestures';
+                
+                // Stop camera
+                const video = document.getElementById('video');
+                if(video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+            }
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', () => {
+            initGame();
+            initMediaPipe();
+        });
+
+        // Prevent context menu on right click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Prevent scroll on arrow keys
+        document.addEventListener('keydown', (e) => {
+            if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
             }
         });
     </script>
