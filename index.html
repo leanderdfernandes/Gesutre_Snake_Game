@@ -237,15 +237,15 @@
                         <div>Index Up = Move Up</div>
                     </div>
                     <div class="gesture-item">
-                        <div class="gesture-icon">👍</div>
+                        <div class="gesture-icon"><img src="assets/tutorial/left.png" alt=""></div>
                         <div>Thumb Left = Move Left</div>
                     </div>
                     <div class="gesture-item">
-                        <div class="gesture-icon">🤙</div>
+                        <div class="gesture-icon"><img src="assets/tutorial/right.png" alt=""></div>
                         <div>Pinky Right = Move Right</div>
                     </div>
                     <div class="gesture-item">
-                        <div class="gesture-icon">✊</div>
+                        <div class="gesture-icon"><img src="assets/tutorial/down.png" alt=""></div>
                         <div>Closed Fist = Move Down</div>
                     </div>
                 </div>
@@ -380,7 +380,7 @@
             { type: 'cherry', image: 'assets/foods/cherry.png', points: 20, color: '#cc0000', weight: 30 },
             { type: 'herb', image: 'assets/foods/herb.png', points: 30, color: '#90EE90', effect: 'slowMotion', weight: 15 },
             { type: 'energy', image: 'assets/foods/energy.png', points: 40, effect: 'speedBoost', weight: 10 },
-            { type: 'carrot', image: 'assets/foods/carrot.png', points: 50, color: '#ffd700', effect: 'invincible', weight: 2 }
+            { type: 'carrot', image: 'assets/foods/carrot.png', points: 50, color: '#ffd700', effect: 'invincible', weight: 5 }
         ];
 
         // Load images
@@ -914,11 +914,11 @@
         } else if (gameState.powerUpEndTimes.slowMotion > Date.now()) {
             ctx.filter = 'hue-rotate(120deg)';
         } else {
-            ctx.filter = 'none';
+            ctx.filter = '';
         }
 
-        const size = index === 0 ? 22 : index === gameState.snake.length - 1 ? 20 : 22;
-        const offset = 0;
+        const size = 22; // All segments 24px for ~4px overlap
+        const offset = 2; // No offset for tight alignment
 
         let dx = 0, dy = 0;
         if (index === 0) {
@@ -932,7 +932,7 @@
         const angle = getRotationAngle(dx, dy);
 
         ctx.save();
-        ctx.translate(segment.x + size / 2, segment.y + size / 2);
+        ctx.translate(segment.x + size / 2, segment.y + size / 2); // Center at segment position
         ctx.rotate(angle);
         if (img) {
             ctx.drawImage(img, -size / 2, -size / 2, size, size);
