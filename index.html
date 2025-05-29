@@ -447,7 +447,23 @@
                 return false;
             }
         }
+        let gestureBuffer = [];
+        const BUFFER_SIZE = 5;
 
+        function getMode(arr) {
+            if (!arr.length) return null;
+            const counts = {};
+            let maxCount = 0;
+            let mode = arr[0];
+            for (const item of arr) {
+                counts[item] = (counts[item] || 0) + 1;
+                if (counts[item] > maxCount) {
+                    maxCount = counts[item];
+                    mode = item;
+                }
+            }
+            return mode;
+        }
         // Process hand landmarks
         function onResults(results) {
             const canvas = document.getElementById('landmarksCanvas');
@@ -464,7 +480,6 @@
 
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 const landmarks = results.multiHandLandmarks[0];
-                console.log('Landmarks detected:', JSON.stringify(landmarks.slice(0, 5), null, 2));
                 try {
                     window.drawConnectors(ctx, landmarks, window.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
                     window.drawLandmarks(ctx, landmarks, { color: '#FF0000', lineWidth: 1 });
@@ -475,10 +490,16 @@
                 }
 
                 const gesture = detectGestureFromLandmarks(landmarks);
-                if (gesture && gesture !== lastGesture) {
-                    console.log(`Detected gesture: ${gesture}`);
-                    processGesture(gesture);
-                    lastGesture = gesture;
+                // Add gesture to buffer
+                gestureBuffer.push(gesture);
+                if (gestureBuffer.length > BUFFER_SIZE) gestureBuffer.shift();
+                // Use mode of buffer
+                const smoothedGesture = getMode(gestureBuffer);
+
+                if (smoothedGesture && smoothedGesture !== lastGesture) {
+                    console.log(`Smoothed gesture: ${smoothedGesture}`);
+                    processGesture(smoothedGesture);
+                    lastGesture = smoothedGesture;
                     const gestureNames = {
                         'up': 'Move Up',
                         'down': 'Move Down',
@@ -486,13 +507,13 @@
                         'right': 'Move Right'
                     };
                     if (statusElement) {
-                        statusElement.textContent = gestureNames[gesture] || gesture;
+                        statusElement.textContent = gestureNames[smoothedGesture] || smoothedGesture;
                         statusElement.className = 'gesture-status detected';
                     }
                     if (gestureIndicator && gameState.controlMethod === 'gesture') {
-                        gestureIndicator.textContent = `Gesture: ${gestureNames[gesture] || gesture}`;
+                        gestureIndicator.textContent = `Gesture: ${gestureNames[smoothedGesture] || smoothedGesture}`;
                     }
-                } else if (!gesture) {
+                } else if (!smoothedGesture) {
                     if (statusElement) {
                         statusElement.textContent = 'No gesture detected';
                         statusElement.className = 'gesture-status';
@@ -503,6 +524,8 @@
                 }
             } else {
                 console.log('No hands detected');
+                gestureBuffer = []; // Clear buffer when no hand is detected
+                lastGesture = null;
                 if (statusElement) {
                     statusElement.textContent = 'No hand detected';
                     statusElement.className = 'gesture-status';
