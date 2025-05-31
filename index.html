@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Snake Game</title>
+    <title>Jungle Snake Master</title>
     <script defer src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js" onerror="handleScriptError('hands')"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" onerror="handleScriptError('camera_utils')"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" onerror="handleScriptError('drawing_utils')"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js" onerror="handleScriptError('camera_utils')"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js" onerror="handleScriptError('drawing_utils')"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,10 +15,10 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Courier New', monospace;
-            background: url('assets/background_skin.png') no-repeat center center fixed, linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: 'Press Start 2P', cursive;
+            background: url('assets/background_skin.png') no-repeat center center fixed, linear-gradient(135deg, #4caf50, #2e7d32);
             background-size: cover;
-            color: white;
+            color: #ffffff;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -41,37 +42,43 @@
             to { opacity: 1; transform: translateY(0); }
         }
         h1 {
-            font-size: 3em;
+            font-size: 2.5em;
             margin-bottom: 30px;
-            text-shadow: 4px 4px 8px rgba(0,0,0,0.7);
-            background: linear-gradient(45deg, #00ff00, #00cc00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            text-shadow: 4px 4px #ff0000, -4px -4px #ab47bc;
+            color: #ffffff;
+            animation: sway 2s infinite ease-in-out;
+        }
+        @keyframes sway {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
         }
         .menu-btn {
-            background: linear-gradient(45deg, #00ff00, #00cc00);
-            border: none;
-            color: white;
+            background: #2e7d32;
+            border: 4px solid #76ff03;
+            color: #ffffff;
             padding: 12px 24px;
             margin: 10px;
-            font-size: 1.1em;
+            font-size: 1em;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,255,0,0.3);
-            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(118, 255, 3, 0.3);
+            text-shadow: 2px 2px #ff5722;
             max-width: 200px;
         }
         .menu-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,255,0,0.5);
+            background: #76ff03;
+            color: #ffffff;
+            text-shadow: 2px 2px #000000;
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 6px 20px rgba(118, 255, 3, 0.5);
         }
         .game-canvas {
             background: linear-gradient(135deg, #2d5a27, #3d7c47);
-            border: 4px solid #00ff00;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,255,0,0.5);
+            border: 6px solid #1b5e20;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(118, 255, 3, 0.5);
             position: relative;
             margin: 20px auto;
         }
@@ -80,13 +87,15 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(27, 94, 32, 0.7);
+            border: 4px solid #76ff03;
             border-radius: 10px;
             margin-bottom: 20px;
+            font-size: 1em;
+            text-shadow: 2px 2px #ff5722;
         }
         .score {
-            font-size: 1.5em;
-            color: #00ff00;
+            color: #ffffff;
         }
         .powerup-indicator {
             padding: 10px;
@@ -94,32 +103,38 @@
             margin-left: 10px;
             transition: all 0.3s ease;
             min-width: 120px;
+            color: #ffffff;
         }
         .control-selection {
             margin: 20px 0;
         }
         .control-btn {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid #00ff00;
-            color: white;
+            background: rgba(46, 125, 50, 0.5);
+            border: 2px solid #76ff03;
+            color: #ffffff;
             padding: 10px 20px;
             margin: 0 10px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 0.9em;
         }
         .control-btn.selected {
-            background: #00ff00;
-            color: black;
+            background: #76ff03;
+            color: #2e7d32;
         }
         .tutorial-content {
-            background: rgba(0,0,0,0.8);
+            background: rgba(27, 94, 32, 0.8);
             padding: 30px;
+            border: 4px solid #76ff03;
             border-radius: 15px;
             max-width: 600px;
             margin: 0 auto;
             max-height: 80vh;
             overflow-y: auto;
+            font-size: 0.8em;
+            color: #ffffff;
+            text-shadow: 1px 1px #ff5722;
         }
         .gesture-demo {
             display: grid;
@@ -131,7 +146,7 @@
             display: flex;
             align-items: center;
             padding: 15px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(118, 255, 3, 0.1);
             border-radius: 10px;
         }
         .gesture-icon {
@@ -155,10 +170,11 @@
             left: 50%;
             transform: translateX(-50%);
             pointer-events: none;
+            border: 2px solid #76ff03;
         }
         .gesture-status {
-            font-size: 1.5em;
-            color: #00ff00;
+            font-size: 1.2em;
+            color: #76ff03;
             margin: 10px 0;
             animation: pulse 0.5s ease-in-out;
         }
@@ -168,8 +184,9 @@
             100% { transform: scale(1); }
         }
         .game-over-screen {
-            background: rgba(0,0,0,0.9);
+            background: rgba(27, 94, 32, 0.9);
             padding: 40px;
+            border: 4px solid #76ff03;
             border-radius: 15px;
             position: absolute;
             top: 50%;
@@ -177,17 +194,18 @@
             transform: translate(-50%, -50%);
             z-index: 1000;
             display: none;
+            text-shadow: 2px 2px #ff5722;
         }
         .glow-effect {
             animation: glow 1s ease-in-out infinite alternate;
         }
         @keyframes glow {
-            from { filter: drop-shadow(0 0 5px currentColor); }
-            to { filter: drop-shadow(0 0 15px currentColor); }
+            from { filter: drop-shadow(0 0 5px #76ff03); }
+            to { filter: drop-shadow(0 0 15px #76ff03); }
         }
         .invincible { color: #ffd700; }
         .speed-boost { color: #00ccff; }
-        .slow-motion { color: #90EE90; }
+        .slow-motion { color: #90ee90; }
         .fade-in-out {
             animation: fadeInOut 2s ease-in-out;
         }
@@ -198,16 +216,23 @@
         }
         #errorMessage {
             color: #ff4444;
-            font-size: 1em;
+            font-size: 0.8em;
             margin-top: 10px;
             text-align: center;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .menu-btn { font-size: 0.9em; padding: 10px 20px; }
+            .hud { font-size: 0.9em; padding: 10px; }
+            .tutorial-content { font-size: 0.7em; padding: 20px; }
+            .gesture-status { font-size: 1em; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="mainMenu" class="screen active">
-            <h1>🐍 SNAKE MASTER 🐍</h1>
+            <h1>🐍 JUNGLE SNAKE 🐍</h1>
             <button class="menu-btn" onclick="showControlSelection()">START GAME</button>
             <button class="menu-btn" onclick="showTutorial()">TUTORIAL</button>
             <button class="menu-btn" onclick="showCreatorInfo()">CREATOR INFO</button>
@@ -265,7 +290,7 @@
                     </div>
                     <div class="gesture-item">
                         <div class="gesture-icon"><img src="assets/foods/herb.png" alt="Herb"></div>
-                        <div>Weed -Slow Motion (30 pts)</div>
+                        <div>Weed - Slow Motion (30 pts)</div>
                     </div>
                     <div class="gesture-item">
                         <div class="gesture-icon"><img src="assets/foods/energy.png" alt="Energy"></div>
@@ -294,7 +319,7 @@
         <div id="creatorInfo" class="screen">
             <div class="tutorial-content">
                 <h1>About the Creator</h1>
-                <p style="font-size: 1.2em; line-height: 1.6; margin: 20px 0;">
+                <p style="font-size: 0.9em; line-height: 1.6; margin: 20px 0;">
                     This premium Snake game was crafted with cutting-edge web technologies including MediaPipe for hand gesture recognition, advanced graphics, and smooth game mechanics.
                 </p>
                 <p style="margin: 20px 0;">
@@ -312,14 +337,14 @@
                 <div class="score" id="gestureIndicator" style="display: none;">Gesture: None</div>
             </div>
             <canvas id="gameCanvas" class="game-canvas" width="720" height="540"></canvas>
-            <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.7;">
+            <div style="margin-top: 15px; font-size: 0.8em; opacity: 0.7;">
                 <span id="controlHint">Use WASD or Arrow Keys to move</span>
             </div>
             <div id="errorMessage"></div>
         </div>
         <div id="gameOverScreen" class="game-over-screen">
             <h2>Game Over!</h2>
-            <div class="score" style="font-size: 2em; margin: 20px 0;">
+            <div class="score" style="font-size: 1.5em; margin: 20px 0;">
                 Final Score: <span id="finalScore">0</span>
             </div>
             <div id="newHighScore" style="color: #ffd700; margin: 10px 0; display: none;">
@@ -353,8 +378,47 @@
             },
             lastEnvironmentUpdate: 0,
             environmentUpdateInterval: 5000,
-            controlMethod: 'keyboard'
+            controlMethod: 'keyboard',
+            scorePopups: [],
+            powerUpPopups: []
         };
+
+        // Screen management
+        function showScreen(screenId) {
+            console.log(`Showing screen: ${screenId}`);
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            if (screenId !== 'mainMenu') {
+                document.body.style.background = 'linear-gradient(135deg, #4caf50, #2e7d32)';
+            } else {
+                document.body.style.background = "url('assets/background_skin.png') no-repeat center center fixed, linear-gradient(135deg, #4caf50, #2e7d32)";
+                document.body.style.backgroundSize = 'cover';
+            }
+        }
+
+        function showControlSelection() {
+            console.log('Showing control selection');
+            showScreen('controlSelection');
+        }
+
+        function showTutorial() {
+            console.log('Showing tutorial');
+            showScreen('tutorial');
+        }
+
+        function showCreatorInfo() {
+            console.log('Showing creator info');
+            showScreen('creatorInfo');
+        }
+
+        function showMainMenu() {
+            console.log('Showing main menu');
+            resetGameState();
+            showScreen('mainMenu');
+            updateHighScoreDisplay();
+        }
 
         // MediaPipe variables
         let hands = null;
@@ -371,14 +435,15 @@
             energy: null,
             snake_head: null,
             snake_body: null,
-            snake_tail: null
+            snake_tail: null,
+            snake_dead: null
         };
 
         // Food types
         const foodTypes = [
             { type: 'apple', image: 'assets/foods/apple.png', points: 10, color: '#ff0000', weight: 50 },
             { type: 'cherry', image: 'assets/foods/cherry.png', points: 20, color: '#cc0000', weight: 30 },
-            { type: 'herb', image: 'assets/foods/herb.png', points: 30, color: '#90EE90', effect: 'slowMotion', weight: 15 },
+            { type: 'herb', image: 'assets/foods/herb.png', points: 30, color: '#90ee90', effect: 'slowMotion', weight: 15 },
             { type: 'energy', image: 'assets/foods/energy.png', points: 40, effect: 'speedBoost', weight: 10 },
             { type: 'carrot', image: 'assets/foods/carrot.png', points: 50, color: '#ffd700', effect: 'invincible', weight: 5 }
         ];
@@ -396,6 +461,8 @@
 
                 function onImageError(error) {
                     console.error('Error loading image:', error);
+                    const errorMessage = document.getElementById('errorMessage');
+                    if (errorMessage) errorMessage.textContent = `Error: Failed to load image ${error.path[0].src}.`;
                     reject(error);
                 }
 
@@ -417,7 +484,7 @@
             }
         }
 
-        // Initialize MediaPipe
+         // Initialize MediaPipe
         async function initMediaPipe() {
             console.log('Initializing MediaPipe...');
             const errorMessage = document.getElementById('errorMessage');
@@ -637,6 +704,7 @@
             }
         }
 
+
         // Generate environment
         function generateEnvironment() {
             gameState.obstacles = [];
@@ -683,13 +751,13 @@
                 );
             }
             return pos;
-}
+        }
 
         // Update environment
         function updateEnvironment() {
             const now = Date.now();
             const snakeHead = gameState.snake[0];
-            const minDistanceSquared = 150 * 150; // Increased to 150px
+            const minDistanceSquared = 150 * 150;
 
             gameState.obstacles = gameState.obstacles.map(obstacle => {
                 if (now > obstacle.fadeTimer) {
@@ -705,7 +773,7 @@
                         obstacle.fadeAlpha = Math.max(0, obstacle.fadeAlpha - 0.02);
                         if (obstacle.fadeAlpha <= 0) {
                             obstacle.fadeState = 'fading';
-                            return { ...getValidPosition(), fading: true, fadeState: 'fadingIn', fadeAlpha: 0, fadeTimer: now + Math.random() * 5000 + 2000 };
+                            return { ...getValidPosition(), fading: false, fadeState: 'fadingIn', fadeAlpha: 0, fadeTimer: now + Math.random() * 5000 + 2000 };
                         }
                     }
                 }
@@ -759,6 +827,8 @@
             gameState.gameSpeed = 150;
             gameState.powerUpEndTimes = { invincible: 0, speedBoost: 0, slowMotion: 0 };
             gameState.foods = [];
+            gameState.scorePopups = [];
+            gameState.powerUpPopups = [];
             generateFoods(3);
             generateEnvironment();
             updateScore();
@@ -784,8 +854,8 @@
             let availableFoods = foodTypes.filter(food => {
                 if (gameState.score < 30) return food.type === 'apple';
                 if (gameState.score < 60) return ['apple', 'cherry'].includes(food.type);
-                if (gameState.score < 60) return ['apple', 'cherry', 'herb'].includes(food.type);
-                if (gameState.score < 600) return ['apple', 'cherry', 'herb', 'energy'].includes(food.type);
+                if (gameState.score < 90) return ['apple', 'cherry', 'herb'].includes(food.type);
+                if (gameState.score < 120) return ['apple', 'cherry', 'herb', 'energy'].includes(food.type);
                 return true;
             });
 
@@ -861,7 +931,28 @@
             gameState.foods = gameState.foods.filter(food => {
                 if (head.x === food.x && head.y === food.y) {
                     gameState.score += food.points;
-                    if (food.effect) gameState.powerUpEndTimes[food.effect] = Date.now() + 5000;
+                    gameState.scorePopups.push({
+                        text: `+${food.points} points!`,
+                        x: food.x,
+                        y: food.y - 10,
+                        alpha: 1,
+                        timer: 15
+                    });
+                    if (food.effect) {
+                        gameState.powerUpEndTimes[food.effect] = Date.now() + 5000;
+                        const popupText = {
+                            invincible: 'Invincibility Active!',
+                            speedBoost: 'Speed Boost Active!',
+                            slowMotion: 'Slow Motion Active!'
+                        }[food.effect];
+                        gameState.powerUpPopups.push({
+                            text: popupText,
+                            x: gameState.canvas.width / 2,
+                            y: 50,
+                            alpha: 1,
+                            timer: 2000
+                        });
+                    }
                     updateScore();
                     updatePowerupIndicator();
                     gameState.gameSpeed = Math.max(80, gameState.gameSpeed - 2);
@@ -879,95 +970,124 @@
         }
 
         function getRotationAngle(dx, dy) {
-            if (dx > 0) return 0; // Right
-            if (dx < 0) return Math.PI; // Left
-            if (dy < 0) return -Math.PI / 2; // Up
-            if (dy > 0) return Math.PI / 2; // Down
-            return 0; // Default (no movement)
+            if (dx > 0) return 0;
+            if (dx < 0) return Math.PI;
+            if (dy < 0) return -Math.PI / 2;
+            if (dy > 0) return Math.PI / 2;
+            return 0;
         }
+
         // Draw game
         function drawGame() {
-    const ctx = gameState.ctx;
-    const gradient = ctx.createLinearGradient(0, 0, gameState.canvas.width, gameState.canvas.height);
-    gradient.addColorStop(0, '#2d5a27');
-    gradient.addColorStop(1, '#3d7c47');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height);
+            const ctx = gameState.ctx;
+            const gradient = ctx.createLinearGradient(0, 0, gameState.canvas.width, gameState.canvas.height);
+            gradient.addColorStop(0, '#2d5a27');
+            gradient.addColorStop(1, '#3d7c47');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height);
 
-    ctx.fillStyle = '#228B22';
-    gameState.grass.forEach(grass => {
-        ctx.globalAlpha = grass.fadeAlpha;
-        ctx.fillRect(grass.x, grass.y, 3, 6);
-        ctx.fillRect(grass.x + 2, grass.y - 2, 3, 6);
-        ctx.globalAlpha = 1;
-    });
+            ctx.fillStyle = '#228b22';
+            gameState.grass.forEach(grass => {
+                ctx.globalAlpha = grass.fadeAlpha;
+                ctx.fillRect(grass.x, grass.y, 3, 6);
+                ctx.fillRect(grass.x + 2, grass.y - 2, 3, 6);
+                ctx.globalAlpha = 1;
+            });
 
-    gameState.obstacles.forEach(obstacle => {
-        ctx.globalAlpha = obstacle.fadeAlpha;
-        ctx.fillStyle = '#666';
-        ctx.beginPath();
-        ctx.arc(obstacle.x + gameState.gridSize / 2, obstacle.y + gameState.gridSize / 2, gameState.gridSize / 2 - 2, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.fillStyle = '#888';
-        ctx.beginPath();
-        ctx.arc(obstacle.x + gameState.gridSize / 2 - 3, obstacle.y + gameState.gridSize / 2 - 3, gameState.gridSize / 3, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    });
+            gameState.obstacles.forEach(obstacle => {
+                ctx.globalAlpha = obstacle.fadeAlpha;
+                ctx.fillStyle = '#666';
+                ctx.beginPath();
+                ctx.arc(obstacle.x + gameState.gridSize / 2, obstacle.y + gameState.gridSize / 2, gameState.gridSize / 2 - 2, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#888';
+                ctx.beginPath();
+                ctx.arc(obstacle.x + gameState.gridSize / 2 - 3, obstacle.y + gameState.gridSize / 2 - 3, gameState.gridSize / 3, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
 
-    gameState.foods.forEach(food => {
-        const img = images[food.type];
-        ctx.globalAlpha = 1;
-        if (img) {
-            ctx.drawImage(img, food.x, food.y, gameState.gridSize, gameState.gridSize);
-        } else {
-            ctx.fillStyle = food.color || '#ff0000';
-            ctx.fillRect(food.x + 2, food.y + 2, gameState.gridSize - 4, gameState.gridSize - 4);
+            gameState.foods.forEach(food => {
+                const img = images[food.type];
+                ctx.globalAlpha = 1;
+                if (img) {
+                    ctx.drawImage(img, food.x, food.y, gameState.gridSize, gameState.gridSize);
+                } else {
+                    ctx.fillStyle = food.color || '#ff0000';
+                    ctx.fillRect(food.x + 2, food.y + 2, gameState.gridSize - 4, gameState.gridSize - 4);
+                }
+            });
+
+            gameState.snake.forEach((segment, index) => {
+                let img = !gameState.gameRunning && index === 0 ? images.snake_dead :
+                          index === 0 ? images.snake_head :
+                          index === gameState.snake.length - 1 ? images.snake_tail : images.snake_body;
+                ctx.globalAlpha = 1;
+
+                if (gameState.powerUpEndTimes.invincible > Date.now()) {
+                    ctx.filter = 'hue-rotate(60deg) brightness(1.2)';
+                } else if (gameState.powerUpEndTimes.speedBoost > Date.now()) {
+                    ctx.filter = 'hue-rotate(200deg) brightness(1.1)';
+                } else if (gameState.powerUpEndTimes.slowMotion > Date.now()) {
+                    ctx.filter = 'hue-rotate(120deg)';
+                } else {
+                    ctx.filter = '';
+                }
+
+                const size = 22;
+                const offset = 2;
+
+                let dx = 0, dy = 0;
+                if (index === 0) {
+                    dx = gameState.direction.x;
+                    dy = gameState.direction.y;
+                } else {
+                    const prevSegment = gameState.snake[index - 1];
+                    dx = prevSegment.x - segment.x;
+                    dy = prevSegment.y - segment.y;
+                }
+                const angle = getRotationAngle(dx, dy);
+
+                ctx.save();
+                ctx.translate(segment.x + size / 2, segment.y + size / 2);
+                ctx.rotate(angle);
+                if (img) {
+                    ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                } else {
+                    ctx.fillStyle = index === 0 ? '#00ff00' : '#008800';
+                    ctx.fillRect(-size / 2, -size / 2, size, size);
+                }
+                ctx.restore();
+
+                ctx.filter = 'none';
+            });
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '12px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            gameState.scorePopups = gameState.scorePopups.filter(popup => {
+                popup.timer -= 16.67;
+                popup.alpha = Math.max(0, popup.alpha - 0.02);
+                if (popup.alpha > 0) {
+                    ctx.globalAlpha = popup.alpha;
+                    ctx.fillText(popup.text, popup.x + gameState.gridSize / 2, popup.y);
+                    ctx.globalAlpha = 1;
+                }
+                return popup.timer > 0;
+            });
+
+            gameState.powerUpPopups = gameState.powerUpPopups.filter(popup => {
+                popup.timer -= 16.67;
+                popup.alpha = Math.max(0, popup.alpha - 0.01);
+                if (popup.alpha > 0) {
+                    ctx.globalAlpha = popup.alpha;
+                    ctx.fillText(popup.text, popup.x, popup.y);
+                    ctx.globalAlpha = 1;
+                }
+                return popup.timer > 0;
+            });
         }
-    });
-
-    gameState.snake.forEach((segment, index) => {
-        let img = index === 0 ? images.snake_head : index === gameState.snake.length - 1 ? images.snake_tail : images.snake_body;
-        ctx.globalAlpha = 1;
-
-        if (gameState.powerUpEndTimes.invincible > Date.now()) {
-            ctx.filter = 'hue-rotate(60deg) brightness(1.2)';
-        } else if (gameState.powerUpEndTimes.speedBoost > Date.now()) {
-            ctx.filter = 'hue-rotate(200deg) brightness(1.1)';
-        } else if (gameState.powerUpEndTimes.slowMotion > Date.now()) {
-            ctx.filter = 'hue-rotate(120deg)';
-        } else {
-            ctx.filter = '';
-        }
-
-        const size = 22; // All segments 24px for ~4px overlap
-        const offset = 2; // No offset for tight alignment
-
-        let dx = 0, dy = 0;
-        if (index === 0) {
-            dx = gameState.direction.x;
-            dy = gameState.direction.y;
-        } else {
-            const prevSegment = gameState.snake[index - 1];
-            dx = prevSegment.x - segment.x;
-            dy = prevSegment.y - segment.y;
-        }
-        const angle = getRotationAngle(dx, dy);
-
-        ctx.save();
-        ctx.translate(segment.x + size / 2, segment.y + size / 2); // Center at segment position
-        ctx.rotate(angle);
-        if (img) {
-            ctx.drawImage(img, -size / 2, -size / 2, size, size);
-        } else {
-            ctx.fillStyle = index === 0 ? '#00ff00' : '#008800';
-            ctx.fillRect(-size / 2, -size / 2, size, size);
-        }
-        ctx.restore();
-
-        ctx.filter = 'none';
-    });
-}
 
         // Update score
         function updateScore() {
@@ -1005,6 +1125,7 @@
         function gameOver() {
             console.log('Game over');
             gameState.gameRunning = false;
+            drawGame()
             cancelAnimationFrame(powerupUpdateFrame);
             if (gameState.score > gameState.highScore) {
                 gameState.highScore = gameState.score;
@@ -1061,20 +1182,7 @@
             }
         }
 
-        // Screen management
-        function showScreen(screenId) {
-            console.log('Showing screen:', screenId);
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            document.getElementById(screenId).classList.add('active');
-            if (screenId !== 'mainMenu') {
-                document.body.style.background = 'linear-gradient(135deg, #1e3c72, #2a5298)';
-            } else {
-                document.body.style.background = "url('assets/background_skin.png') no-repeat center center fixed, linear-gradient(135deg, #1e3c72, #2a5298)";
-                document.body.style.backgroundSize = 'cover';
-            }
-        }
+    
 
         // Reset game state
         function resetGameState() {
@@ -1187,7 +1295,9 @@
             }).catch(error => {
                 console.error('MediaPipe initialization error:', error);
                 const gestureBtn = document.getElementById('gestureBtn');
-                if (gestureBtn) gestureBtn.style.display = 'none';
+                if (gestureBtn) {
+                    gestureBtn.style.display = 'none';
+                }
             });
         });
 
