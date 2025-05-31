@@ -294,7 +294,7 @@
                     </div>
                     <div class="gesture-item">
                         <div class="gesture-icon"><img src="assets/foods/energy.png" alt="Energy"></div>
-                        <div>Speed Boost (40 pts)</div>
+                        <div>White Monster - Speed Boost (40 pts)</div>
                     </div>
                     <div class="gesture-item">
                         <div class="gesture-icon">🪨</div>
@@ -931,13 +931,15 @@
             gameState.foods = gameState.foods.filter(food => {
                 if (head.x === food.x && head.y === food.y) {
                     gameState.score += food.points;
-                    gameState.scorePopups.push({
-                        text: `+${food.points} points!`,
-                        x: food.x,
-                        y: food.y - 10,
-                        alpha: 1,
-                        timer: 15
-                    });
+                   gameState.scorePopups.push({
+                    text: `+${food.points} points!`,
+                    x: Math.max(20, Math.min(food.x, 660 - 60)), // Clamp x: 20 to 600
+                    y: Math.max(20, Math.min(food.y - 10, 440 - 20)), // Clamp y: 20 to 420
+                    alpha: 1,
+                    timer: 25,
+                    initialTimer: 10 // For easing
+                });
+                    
                     if (food.effect) {
                         gameState.powerUpEndTimes[food.effect] = Date.now() + 5000;
                         const popupText = {
@@ -1062,20 +1064,35 @@
                 ctx.filter = 'none';
             });
 
+           
             ctx.fillStyle = '#ffffff';
-            ctx.font = '12px "Press Start 2P"';
+            ctx.font = '宋体';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             gameState.scorePopups = gameState.scorePopups.filter(popup => {
                 popup.timer -= 16.67;
-                popup.alpha = Math.max(0, popup.alpha - 0.02);
+                const t = popup.timer / popup.initialTimer;
+                popup.alpha = t * t;
+                popup.y -= 0.5;
                 if (popup.alpha > 0) {
                     ctx.globalAlpha = popup.alpha;
+                    // First shadow: 4px 4px #ff0000
+                    ctx.shadowColor = '#000000';
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
+                    ctx.fillText(popup.text, popup.x + gameState.gridSize / 2, popup.y);
+                    // Second shadow: -4px -4px #ab47bc
+                    ctx.shadowColor = '#000000';
+                    ctx.shadowOffsetX = -1;
+                    ctx.shadowOffsetY = -1;
                     ctx.fillText(popup.text, popup.x + gameState.gridSize / 2, popup.y);
                     ctx.globalAlpha = 1;
                 }
                 return popup.timer > 0;
             });
+            ctx.shadowColor = 'transparent';
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
 
             gameState.powerUpPopups = gameState.powerUpPopups.filter(popup => {
                 popup.timer -= 16.67;
