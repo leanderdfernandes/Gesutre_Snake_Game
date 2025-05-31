@@ -568,10 +568,10 @@
                     processGesture(smoothedGesture);
                     lastGesture = smoothedGesture;
                     const gestureNames = {
-                        'up': 'Move Up',
-                        'down': 'Move Down',
-                        'left': 'Move Left',
-                        'right': 'Move Right'
+                        'up': '↑',
+                        'down': '↓',
+                        'left': '←',
+                        'right': '→'
                     };
                     if (statusElement) {
                         statusElement.textContent = gestureNames[smoothedGesture] || smoothedGesture;
