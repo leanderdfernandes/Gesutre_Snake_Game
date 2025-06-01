@@ -42,9 +42,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
         h1 {
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            text-shadow: 4px 4px #ff0000, -4px -4px #ab47bc;
+            font-size: 3em;
+            margin-bottom: 50px;
+            text-shadow: 4px 4px #ff0000, -4px -4px #000000;
             color: #ffffff;
             animation: sway 2s infinite ease-in-out;
         }
@@ -68,11 +68,12 @@
             max-width: 200px;
         }
         .menu-btn:hover {
-            background: #76ff03;
+            background: #da0202;
+            border: 4px solid #ff4949;
             color: #ffffff;
             text-shadow: 2px 2px #000000;
             transform: scale(1.1) translateY(-3px);
-            box-shadow: 0 6px 20px rgba(118, 255, 3, 0.5);
+            box-shadow: 0 6px 20px rgba(125, 0, 0, 0.5);
         }
         .game-canvas {
             background: linear-gradient(135deg, #2d5a27, #3d7c47);
@@ -112,17 +113,18 @@
             background: rgba(46, 125, 50, 0.5);
             border: 2px solid #76ff03;
             color: #ffffff;
-            padding: 10px 20px;
+            padding: 12px 22px;
             margin: 0 10px;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.9em;
+            font-size: 1em;
         }
         .control-btn.selected {
             background: #76ff03;
             color: #2e7d32;
         }
+    
         .tutorial-content {
             background: rgba(27, 94, 32, 0.8);
             padding: 30px;
@@ -227,9 +229,44 @@
             .tutorial-content { font-size: 0.7em; padding: 20px; }
             .gesture-status { font-size: 1em; }
         }
+        #powerupOverlay.slow {
+            animation: partyLights 2s infinite ease-in-out;
+            background: radial-gradient(circle, green, rgb(12, 152, 12), rgba(128,0,128,0.2));
+        }
+        #powerupOverlay.speed {
+            animation: flashBounce 0.4s infinite alternate;
+            background: linear-gradient(45deg, yellow, white, grey);
+            filter: blur(1px);
+        }
+        #powerupOverlay.invincibility {
+            animation: glowPulse 1.5s infinite ease-in-out;
+            background: linear-gradient(45deg, white, orange, yellow, rgb(184, 197, 253));
+            background-size: 400%;
+            animation: glowPulse 1.5s infinite ease-in-out, rainbow SIX infinite;
+            box-shadow: inset 0 0 30px rgba(255,255,255,0.4);
+        }
+        @keyframes partyLights {
+            0% { opacity: 0.0; transform: scale(1); }
+            50% { opacity: 0.06; transform: scale(1.03); }
+            100% { opacity: 0.0; transform: scale(1); }
+        }
+        @keyframes flashBounce {
+            0% { opacity: 0.01; transform: scale(1); }
+            100% { opacity: 0.02; transform: scale(1.01); }
+        }
+        @keyframes glowPulse {
+            0% { opacity: 0.0; transform: scale(1); }
+            50% { opacity: 0.01; transform: scale(1.02); }
+            100% { opacity: 0.0; transform: scale(1); }
+        }
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
+        }
     </style>
 </head>
 <body>
+    <div id="powerupOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;"></div>
     <div class="container">
         <div id="mainMenu" class="screen active">
             <h1>🐍 JUNGLE SNAKE 🐍</h1>
@@ -249,8 +286,8 @@
                     ⌨️ Keyboard
                 </button>
             </div>
-            <button class="menu-btn" onclick="startGame()">START PLAYING</button>
-            <button class="menu-btn" onclick="showMainMenu()">BACK</button>
+            <button class="menu-btn" onclick="startGame()"><b>START PLAYING</b></button>
+            <button class="menu-btn" onclick="showMainMenu()"><b>BACK</b></button>
             <div id="errorMessage"></div>
         </div>
         <div id="tutorial" class="screen">
@@ -285,16 +322,16 @@
                         <div>Cherry (20 pts)</div>
                     </div>
                     <div class="gesture-item">
-                        <div class="gesture-icon"><img src="assets/foods/carrot.png" alt="Carrot"></div>
-                        <div>Golden Carrot - Invincibility (50 pts)</div>
+                        <div class="gesture-icon"><img src="https://cdn-icons-png.flaticon.com/128/15007/15007246.png" alt="Carrot"></div>
+                        <div>Love Of Christ - Invincibility (50 pts)</div>
                     </div>
                     <div class="gesture-item">
-                        <div class="gesture-icon"><img src="assets/foods/herb.png" alt="Herb"></div>
+                        <div class="gesture-icon"><img src="https://cdn-icons-png.flaticon.com/128/3486/3486393.png" alt="Herb"></div>
                         <div>Weed - Slow Motion (30 pts)</div>
                     </div>
                     <div class="gesture-item">
-                        <div class="gesture-icon"><img src="https://cdn-icons-png.flaticon.com/128/15467/15467819.png" alt="Energy"></div>
-                        <div>White Monster - Speed Boost (40 pts)</div>
+                        <div class="gesture-icon"><img src="https://cdn-icons-png.flaticon.com/128/4357/4357924.png" alt="Energy"></div>
+                        <div>Crack Cocaine - Speed Boost (40 pts)</div>
                     </div>
                     <div class="gesture-item">
                         <div class="gesture-icon">🪨</div>
@@ -320,7 +357,10 @@
             <div class="tutorial-content">
                 <h1>About the Creator</h1>
                 <p style="font-size: 0.9em; line-height: 1.6; margin: 20px 0;">
-                    This premium Snake game was crafted with cutting-edge web technologies including MediaPipe for hand gesture recognition, advanced graphics, and smooth game mechanics.
+                About the Creator
+                The creator, <b>Leander</b>, developed this project, <b>Jungle Snake Master</b> in an attempt to avoid studying during the semester exams, transforming study procrastinations into a fun creative exploration and  innovation. Leveraging MediaPipe’s hand gesture recognition and hosted on GitHub Pages, this game blends cutting-edge technology with timeless arcade thrills made specially for the beautiful friends of Leander.  
+                Many of the game’s distinctive assets were meticously hand-crafted by Leander, lending a unique charm to every element. So go on, conquer the jungle, eat foods and claim your new higscores.  
+                Dive in and enjoy the challenge!
                 </p>
                 <p style="margin: 20px 0;">
                     Features include dynamic power-ups, progressive difficulty, and an immersive gaming experience that combines classic gameplay with modern innovation.
@@ -357,6 +397,41 @@
     </div>
 
     <script>
+        // Constants
+        const POWER_UP_DURATION = 5000;
+        const INITIAL_GAME_SPEED = 150;
+        const MIN_GAME_SPEED = 80;
+        const GRID_SIZE = 20;
+        const CANVAS_WIDTH = 720;
+        const CANVAS_HEIGHT = 540;
+        const GESTURE_THRESHOLD = 0.03;
+        const DEBUG = false;
+
+        // Centralized DOM elements
+        const elements = {
+            canvas: document.getElementById('gameCanvas'),
+            errorMessage: document.getElementById('errorMessage'),
+            powerupIndicator: document.getElementById('powerupIndicator'),
+            gameScore: document.getElementById('gameScore'),
+            gameHighScore: document.getElementById('gameHighScore'),
+            gestureIndicator: document.getElementById('gestureIndicator'),
+            controlHint: document.getElementById('controlHint'),
+            highScore: document.getElementById('highScore'),
+            finalScore: document.getElementById('finalScore'),
+            newHighScore: document.getElementById('newHighScore'),
+            gameOverScreen: document.getElementById('gameOverScreen'),
+            video: document.getElementById('video'),
+            landmarksCanvas: document.getElementById('landmarksCanvas'),
+            gestureStatus: document.getElementById('gestureStatus'),
+            gestureBtn: document.getElementById('gestureBtn'),
+            gestureDemo: document.getElementById('gestureDemo')
+        };
+
+        // Debug logging
+        function log(...args) {
+            if (DEBUG) console.log(...args);
+        }
+
         // Game state
         let gameState = {
             canvas: null,
@@ -369,8 +444,8 @@
             score: 0,
             highScore: 0,
             gameRunning: false,
-            gridSize: 20,
-            gameSpeed: 150,
+            gridSize: GRID_SIZE,
+            gameSpeed: INITIAL_GAME_SPEED,
             powerUpEndTimes: {
                 invincible: 0,
                 speedBoost: 0,
@@ -385,36 +460,36 @@
 
         // Screen management
         function showScreen(screenId) {
-            console.log(`Showing screen: ${screenId}`);
+            log(`Showing screen: ${screenId}`);
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
             document.getElementById(screenId).classList.add('active');
-            if (screenId !== 'mainMenu') {
-                document.body.style.background = 'linear-gradient(135deg, #4caf50, #2e7d32)';
-            } else {
+            if (['mainMenu', 'controlSelection', 'tutorial', 'creatorInfo'].includes(screenId)) {
                 document.body.style.background = "url('assets/background_skin.png') no-repeat center center fixed, linear-gradient(135deg, #4caf50, #2e7d32)";
                 document.body.style.backgroundSize = 'cover';
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #4caf50, #2e7d32)';
             }
         }
 
         function showControlSelection() {
-            console.log('Showing control selection');
+            log('Showing control selection');
             showScreen('controlSelection');
         }
 
         function showTutorial() {
-            console.log('Showing tutorial');
+            log('Showing tutorial');
             showScreen('tutorial');
         }
 
         function showCreatorInfo() {
-            console.log('Showing creator info');
+            log('Showing creator info');
             showScreen('creatorInfo');
         }
 
         function showMainMenu() {
-            console.log('Showing main menu');
+            log('Showing main menu');
             resetGameState();
             showScreen('mainMenu');
             updateHighScoreDisplay();
@@ -436,16 +511,25 @@
             snake_head: null,
             snake_body: null,
             snake_tail: null,
-            snake_dead: null
+            snake_dead: null,
+            snake_slow_head: null,
+            snake_slow_body: null,
+            snake_slow_tail: null,
+            snake_speed_head: null,
+            snake_speed_body: null,
+            snake_speed_tail: null,
+            snake_invincible_head: null,
+            snake_invincible_body: null,
+            snake_invincible_tail: null
         };
 
         // Food types
         const foodTypes = [
             { type: 'apple', image: 'assets/foods/apple.png', points: 10, color: '#ff0000', weight: 50 },
             { type: 'cherry', image: 'assets/foods/cherry.png', points: 20, color: '#cc0000', weight: 30 },
-            { type: 'herb', image: 'assets/foods/herb.png', points: 30, color: '#90ee90', effect: 'slowMotion', weight: 15 },
-            { type: 'energy', image: 'https://cdn-icons-png.flaticon.com/128/15467/15467819.png', points: 40, effect: 'speedBoost', weight: 10 },
-            { type: 'carrot', image: 'assets/foods/carrot.png', points: 50, color: '#ffd700', effect: 'invincible', weight: 5 }
+            { type: 'herb', image: 'https://cdn-icons-png.flaticon.com/128/3486/3486393.png', points: 30, color: '#90ee90', effect: 'slowMotion', weight: 15 },
+            { type: 'energy', image: 'https://cdn-icons-png.flaticon.com/128/4357/4357924.png', points: 40, effect: 'speedBoost', weight: 10 },
+            { type: 'carrot', image: 'https://cdn-icons-png.flaticon.com/128/15007/15007246.png', points: 50, color: '#ffd700', effect: 'invincible', weight: 5 }
         ];
 
         // Load images
@@ -460,15 +544,20 @@
                 }
 
                 function onImageError(error) {
-                    console.error('Error loading image:', error);
-                    const errorMessage = document.getElementById('errorMessage');
-                    if (errorMessage) errorMessage.textContent = `Error: Failed to load image ${error.path[0].src}.`;
+                    log('Error loading image:', error);
+                    if (elements.errorMessage) {
+                        elements.errorMessage.textContent = `Error: Failed to load image ${error.path[0].src}.`;
+                    }
                     reject(error);
                 }
 
                 for (let key in images) {
                     images[key] = new Image();
-                    images[key].src = foodTypes.find(f => f.type === key)?.image || `assets/snakes/${key}.png`;
+                    if (key.startsWith('snake_')) {
+                        images[key].src = `assets/snakes/${key}.png`;
+                    } else {
+                        images[key].src = foodTypes.find(f => f.type === key)?.image || `assets/snakes/${key}.png`;
+                    }
                     images[key].onload = onImageLoad;
                     images[key].onerror = onImageError;
                 }
@@ -477,17 +566,15 @@
 
         // Handle script loading errors
         function handleScriptError(scriptName) {
-            console.error(`${scriptName} script failed to load.`);
-            const errorMessage = document.getElementById('errorMessage');
-            if (errorMessage) {
-                errorMessage.textContent = `Error: Failed to load ${scriptName} script. Check CDN or network.`;
+            log(`${scriptName} script failed to load.`);
+            if (elements.errorMessage) {
+                elements.errorMessage.textContent = `Error: Failed to load ${scriptName} script. Check CDN or network.`;
             }
         }
 
-         // Initialize MediaPipe
+        // Initialize MediaPipe
         async function initMediaPipe() {
-            console.log('Initializing MediaPipe...');
-            const errorMessage = document.getElementById('errorMessage');
+            log('Initializing MediaPipe...');
             try {
                 if (typeof window.Hands === 'undefined') throw new Error('MediaPipe Hands script not loaded.');
                 if (typeof window.Camera === 'undefined') throw new Error('MediaPipe Camera Utils not loaded.');
@@ -505,15 +592,18 @@
                 });
                 hands.onResults(onResults);
                 mediaPipeLoaded = true;
-                console.log('MediaPipe initialized successfully');
-                if (errorMessage) errorMessage.textContent = '';
+                log('MediaPipe initialized successfully');
+                if (elements.errorMessage) elements.errorMessage.textContent = '';
                 return true;
             } catch (error) {
-                console.error('MediaPipe initialization failed:', error);
-                if (errorMessage) errorMessage.textContent = `Error: ${error.message}. See console for details.`;
+                log('MediaPipe initialization failed:', error);
+                if (elements.errorMessage) {
+                    elements.errorMessage.textContent = `Error: ${error.message}. See console for details.`;
+                }
                 return false;
             }
         }
+
         let gestureBuffer = [];
         const BUFFER_SIZE = 5;
 
@@ -531,19 +621,16 @@
             }
             return mode;
         }
+
         // Process hand landmarks
         function onResults(results) {
-            const canvas = document.getElementById('landmarksCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const statusElement = document.getElementById('gestureStatus');
-            const gestureIndicator = document.getElementById('gestureIndicator');
+            const ctx = elements.landmarksCanvas.getContext('2d');
+            ctx.clearRect(0, 0, elements.landmarksCanvas.width, elements.landmarksCanvas.height);
 
             ctx.save();
             ctx.scale(-1, 1);
-            ctx.translate(-canvas.width, 0);
-            ctx.drawImage(document.getElementById('video'), 0, 0, canvas.width, canvas.height);
+            ctx.translate(-elements.landmarksCanvas.width, 0);
+            ctx.drawImage(elements.video, 0, 0, elements.landmarksCanvas.width, elements.landmarksCanvas.height);
 
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 const landmarks = results.multiHandLandmarks[0];
@@ -551,54 +638,51 @@
                     window.drawConnectors(ctx, landmarks, window.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
                     window.drawLandmarks(ctx, landmarks, { color: '#FF0000', lineWidth: 1 });
                 } catch (error) {
-                    console.error('Drawing error:', error);
-                    const errorMessage = document.getElementById('errorMessage');
-                    if (errorMessage) errorMessage.textContent = `Drawing error: ${error.message}`;
+                    log('Drawing error:', error);
+                    if (elements.errorMessage) elements.errorMessage.textContent = `Drawing error: ${error.message}`;
                 }
 
                 const gesture = detectGestureFromLandmarks(landmarks);
-                // Add gesture to buffer
                 gestureBuffer.push(gesture);
                 if (gestureBuffer.length > BUFFER_SIZE) gestureBuffer.shift();
-                // Use mode of buffer
                 const smoothedGesture = getMode(gestureBuffer);
 
                 if (smoothedGesture && smoothedGesture !== lastGesture) {
-                    console.log(`Smoothed gesture: ${smoothedGesture}`);
+                    log(`Smoothed gesture: ${smoothedGesture}`);
                     processGesture(smoothedGesture);
                     lastGesture = smoothedGesture;
                     const gestureNames = {
-                        'up': '↑',
-                        'down': '↓',
-                        'left': '←',
-                        'right': '→'
+                        'up': 'Move Up',
+                        'down': 'Move Down',
+                        'left': 'Move Left',
+                        'right': 'Move Right'
                     };
-                    if (statusElement) {
-                        statusElement.textContent = gestureNames[smoothedGesture] || smoothedGesture;
-                        statusElement.className = 'gesture-status detected';
+                    if (elements.gestureStatus) {
+                        elements.gestureStatus.textContent = gestureNames[smoothedGesture] || smoothedGesture;
+                        elements.gestureStatus.className = 'gesture-status detected';
                     }
-                    if (gestureIndicator && gameState.controlMethod === 'gesture') {
-                        gestureIndicator.textContent = `Gesture: ${gestureNames[smoothedGesture] || smoothedGesture}`;
+                    if (elements.gestureIndicator && gameState.controlMethod === 'gesture') {
+                        elements.gestureIndicator.textContent = `Gesture: ${gestureNames[smoothedGesture] || smoothedGesture}`;
                     }
                 } else if (!smoothedGesture) {
-                    if (statusElement) {
-                        statusElement.textContent = 'No gesture detected';
-                        statusElement.className = 'gesture-status';
+                    if (elements.gestureStatus) {
+                        elements.gestureStatus.textContent = 'No gesture detected';
+                        elements.gestureStatus.className = 'gesture-status';
                     }
-                    if (gestureIndicator && gameState.controlMethod === 'gesture') {
-                        gestureIndicator.textContent = 'Gesture: None';
+                    if (elements.gestureIndicator && gameState.controlMethod === 'gesture') {
+                        elements.gestureIndicator.textContent = 'Gesture: None';
                     }
                 }
             } else {
-                console.log('No hands detected');
-                gestureBuffer = []; // Clear buffer when no hand is detected
+                log('No hands detected');
+                gestureBuffer = [];
                 lastGesture = null;
-                if (statusElement) {
-                    statusElement.textContent = 'No hand detected';
-                    statusElement.className = 'gesture-status';
+                if (elements.gestureStatus) {
+                    elements.gestureStatus.textContent = 'No hand detected';
+                    elements.gestureStatus.className = 'gesture-status';
                 }
-                if (gestureIndicator && gameState.controlMethod === 'gesture') {
-                    gestureIndicator.textContent = 'Gesture: None';
+                if (elements.gestureIndicator && gameState.controlMethod === 'gesture') {
+                    elements.gestureIndicator.textContent = 'Gesture: None';
                 }
             }
             ctx.restore();
@@ -618,15 +702,15 @@
             const pinkyTip = landmarks[20];
             const pinkyPip = landmarks[18];
 
-            const thumbUp = thumbTip.x > thumbPip.x + 0.03;
-            const indexUp = indexTip.y < indexPip.y - 0.03;
-            const middleUp = middleTip.y < middlePip.y - 0.03;
-            const ringUp = ringTip.y < ringPip.y - 0.03;
-            const pinkyUp = pinkyTip.y < pinkyPip.y - 0.03;
+            const thumbUp = thumbTip.x > thumbPip.x + GESTURE_THRESHOLD;
+            const indexUp = indexTip.y < indexPip.y - GESTURE_THRESHOLD;
+            const middleUp = middleTip.y < middlePip.y - GESTURE_THRESHOLD;
+            const ringUp = ringTip.y < ringPip.y - GESTURE_THRESHOLD;
+            const pinkyUp = pinkyTip.y < pinkyPip.y - GESTURE_THRESHOLD;
 
             const extendedFingers = [indexUp, middleUp, ringUp, pinkyUp].filter(Boolean).length;
 
-            console.log('Gesture analysis:', { thumbUp, indexUp, middleUp, ringUp, pinkyUp, extendedFingers });
+            log('Gesture analysis:', { thumbUp, indexUp, middleUp, ringUp, pinkyUp, extendedFingers });
 
             if (indexUp && !middleUp && !ringUp && !pinkyUp) return 'up';
             if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) return 'left';
@@ -637,60 +721,55 @@
 
         // Start camera
         async function startCamera() {
-            console.log('Starting camera...');
-            const errorMessage = document.getElementById('errorMessage');
+            log('Starting camera...');
             try {
                 if (!mediaPipeLoaded) {
                     const success = await initMediaPipe();
                     if (!success) {
-                        if (errorMessage) errorMessage.textContent = 'MediaPipe failed to initialize. Check console.';
+                        if (elements.errorMessage) elements.errorMessage.textContent = 'MediaPipe failed to initialize. Check console.';
                         return;
                     }
                 }
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { width: 300, height: 225, facingMode: 'user' }
                 });
-                const video = document.getElementById('video');
-                video.srcObject = stream;
+                elements.video.srcObject = stream;
                 if (camera) camera.stop();
-                camera = new window.Camera(video, {
+                camera = new window.Camera(elements.video, {
                     onFrame: async () => {
-                        if (hands) await hands.send({ image: video });
+                        if (hands) await hands.send({ image: elements.video });
                     },
                     width: 300,
                     height: 225
                 });
                 camera.start();
-                console.log('Camera started successfully');
-                if (errorMessage) errorMessage.textContent = '';
+                log('Camera started successfully');
+                if (elements.errorMessage) elements.errorMessage.textContent = '';
             } catch (error) {
-                console.error('Camera error:', error);
-                if (errorMessage) errorMessage.textContent = `Camera error: ${error.message}. Ensure webcam access is allowed.`;
+                log('Camera error:', error);
+                if (elements.errorMessage) elements.errorMessage.textContent = `Camera error: ${error.message}. Ensure webcam access is allowed.`;
             }
         }
 
         // Stop camera
         function stopCamera() {
-            console.log('Stopping camera...');
+            log('Stopping camera...');
             if (camera) {
                 camera.stop();
                 camera = null;
             }
-            const video = document.getElementById('video');
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
+            if (elements.video.srcObject) {
+                elements.video.srcObject.getTracks().forEach(track => track.stop());
+                elements.video.srcObject = null;
             }
-            const statusElement = document.getElementById('gestureStatus');
-            if (statusElement) statusElement.textContent = 'Camera stopped';
-            const errorMessage = document.getElementById('errorMessage');
-            if (errorMessage) errorMessage.textContent = '';
+            if (elements.gestureStatus) elements.gestureStatus.textContent = 'Camera stopped';
+            if (elements.errorMessage) elements.errorMessage.textContent = '';
         }
 
         // Initialize game
         async function initGame() {
-            console.log('Initializing game...');
-            gameState.canvas = document.getElementById('gameCanvas');
+            log('Initializing game...');
+            gameState.canvas = elements.canvas;
             gameState.ctx = gameState.canvas.getContext('2d');
             gameState.highScore = parseInt(localStorage.getItem('snakeHighScore') || '0');
             try {
@@ -698,12 +777,10 @@
                 generateEnvironment();
                 updateHighScoreDisplay();
             } catch (error) {
-                console.error('Failed to load images:', error);
-                const errorMessage = document.getElementById('errorMessage');
-                if (errorMessage) errorMessage.textContent = 'Failed to load game assets. Check assets folder.';
+                log('Failed to load images:', error);
+                if (elements.errorMessage) elements.errorMessage.textContent = 'Failed to load game assets. Check assets folder.';
             }
         }
-
 
         // Generate environment
         function generateEnvironment() {
@@ -733,23 +810,19 @@
 
         // Get valid position
         function getValidPosition() {
+            const allObjects = [
+                ...gameState.snake,
+                ...gameState.foods,
+                ...gameState.obstacles,
+                ...gameState.grass
+            ];
             let pos;
-            let valid = false;
-            while (!valid) {
+            do {
                 pos = {
-                    x: Math.floor(Math.random() * (gameState.canvas.width / gameState.gridSize)) * gameState.gridSize,
-                    y: Math.floor(Math.random() * (gameState.canvas.height / gameState.gridSize)) * gameState.gridSize
+                    x: Math.floor(Math.random() * (CANVAS_WIDTH / GRID_SIZE)) * GRID_SIZE,
+                    y: Math.floor(Math.random() * (CANVAS_HEIGHT / GRID_SIZE)) * GRID_SIZE
                 };
-                valid = !gameState.snake.some(segment =>
-                    segment.x === pos.x && segment.y === pos.y
-                ) && !gameState.foods.some(food =>
-                    food.x === pos.x && food.y === pos.y
-                ) && !gameState.obstacles.some(obstacle =>
-                    obstacle.x === pos.x && obstacle.y === pos.y
-                ) && !gameState.grass.some(grass =>
-                    grass.x === pos.x && grass.y === pos.y
-                );
-            }
+            } while (allObjects.some(obj => obj.x === pos.x && obj.y === pos.y));
             return pos;
         }
 
@@ -816,15 +889,15 @@
 
         // Start new game
         function startNewGame() {
-            console.log('Starting new game...');
+            log('Starting new game...');
             gameState.snake = [
-                { x: gameState.gridSize * 4, y: gameState.gridSize * 4 },
-                { x: gameState.gridSize * 3, y: gameState.gridSize * 4 },
-                { x: gameState.gridSize * 2, y: gameState.gridSize * 4 }
+                { x: GRID_SIZE * 4, y: GRID_SIZE * 4 },
+                { x: GRID_SIZE * 3, y: GRID_SIZE * 4 },
+                { x: GRID_SIZE * 2, y: GRID_SIZE * 4 }
             ];
-            gameState.direction = { x: gameState.gridSize, y: 0 };
+            gameState.direction = { x: GRID_SIZE, y: 0 };
             gameState.score = 0;
-            gameState.gameSpeed = 150;
+            gameState.gameSpeed = INITIAL_GAME_SPEED;
             gameState.powerUpEndTimes = { invincible: 0, speedBoost: 0, slowMotion: 0 };
             gameState.foods = [];
             gameState.scorePopups = [];
@@ -833,11 +906,11 @@
             generateEnvironment();
             updateScore();
             updatePowerupIndicator();
-            document.getElementById('controlHint').textContent =
+            elements.controlHint.textContent =
                 gameState.controlMethod === 'gesture'
                     ? 'Use hand gestures to control the snake'
                     : 'Use WASD or arrow keys to move';
-            document.getElementById('gestureIndicator').style.display =
+            elements.gestureIndicator.style.display =
                 gameState.controlMethod === 'gesture' ? 'block' : 'none';
         }
 
@@ -856,6 +929,7 @@
                 if (gameState.score < 60) return ['apple', 'cherry'].includes(food.type);
                 if (gameState.score < 90) return ['apple', 'cherry', 'herb'].includes(food.type);
                 if (gameState.score < 120) return ['apple', 'cherry', 'herb', 'energy'].includes(food.type);
+                if (gameState.score < 120) return ['apple', 'cherry', 'herb', 'energy', 'carrot'].includes(food.type);
                 return true;
             });
 
@@ -875,8 +949,8 @@
             let newFood;
             while (!validPosition) {
                 newFood = {
-                    x: Math.floor(Math.random() * (gameState.canvas.width / gameState.gridSize)) * gameState.gridSize,
-                    y: Math.floor(Math.random() * (gameState.canvas.height / gameState.gridSize)) * gameState.gridSize,
+                    x: Math.floor(Math.random() * (CANVAS_WIDTH / GRID_SIZE)) * GRID_SIZE,
+                    y: Math.floor(Math.random() * (CANVAS_HEIGHT / GRID_SIZE)) * GRID_SIZE,
                     ...selectedFood
                 };
                 validPosition = !gameState.snake.some(segment =>
@@ -898,71 +972,62 @@
             head.x += gameState.direction.x;
             head.y += gameState.direction.y;
 
-            if (head.x < 0 || head.x >= gameState.canvas.width ||
-                head.y < 0 || head.y >= gameState.canvas.height) {
-                if (gameState.powerUpEndTimes.invincible <= Date.now()) {
-                    gameOver();
-                    return;
-                } else {
-                    head.x = (head.x + gameState.canvas.width) % gameState.canvas.width;
-                    head.y = (head.y + gameState.canvas.height) % gameState.canvas.height;
-                }
-            }
-
-            if (gameState.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
-                if (gameState.powerUpEndTimes.invincible <= Date.now()) {
+            const now = Date.now();
+            if (gameState.powerUpEndTimes.invincible <= now) {
+                if (head.x < 0 || head.x >= CANVAS_WIDTH ||
+                    head.y < 0 || head.y >= CANVAS_HEIGHT ||
+                    gameState.snake.some(segment => segment.x === head.x && segment.y === head.y) ||
+                    gameState.obstacles.some(obstacle => obstacle.x === head.x && obstacle.y === head.y && obstacle.fadeAlpha > 0)) {
                     gameOver();
                     return;
                 }
-            }
-
-            if (gameState.obstacles.some(obstacle =>
-                obstacle.x === head.x && obstacle.y === head.y && obstacle.fadeAlpha > 0
-            )) {
-                if (gameState.powerUpEndTimes.invincible <= Date.now()) {
-                    gameOver();
-                    return;
-                }
+            } else {
+                head.x = (head.x + CANVAS_WIDTH) % CANVAS_WIDTH;
+                head.y = (head.y + CANVAS_HEIGHT) % CANVAS_HEIGHT;
             }
 
             gameState.snake.unshift(head);
 
             let foodEaten = false;
-            gameState.foods = gameState.foods.filter(food => {
-                if (head.x === food.x && head.y === food.y) {
-                    gameState.score += food.points;
-                   gameState.scorePopups.push({
+            const overlay = document.getElementById('powerupOverlay');
+            const powerUpOverlayClasses = {
+                slowMotion: 'slow',
+                speedBoost: 'speed',
+                invincible: 'invincibility'
+            };
+            overlay.className = Object.keys(powerUpOverlayClasses).find(key => gameState.powerUpEndTimes[key] > now) || '';
+
+            const food = gameState.foods.find(food => head.x === food.x && head.y === food.y);
+            if (food) {
+                gameState.score += food.points;
+                gameState.scorePopups.push({
                     text: `+${food.points} points!`,
-                    x: Math.max(20, Math.min(food.x, 660 - 60)), // Clamp x: 20 to 600
-                    y: Math.max(20, Math.min(food.y - 10, 440 - 20)), // Clamp y: 20 to 420
+                    x: Math.max(20, Math.min(food.x, 660 - 60)),
+                    y: Math.max(20, Math.min(food.y - 10, 440 - 20)),
                     alpha: 1,
                     timer: 25,
-                    initialTimer: 10 // For easing
+                    initialTimer: 10
                 });
-                    
-                    if (food.effect) {
-                        gameState.powerUpEndTimes[food.effect] = Date.now() + 5000;
-                        const popupText = {
-                            invincible: 'Invincibility Active!',
-                            speedBoost: 'Speed Boost Active!',
-                            slowMotion: 'Slow Motion Active!'
-                        }[food.effect];
-                        gameState.powerUpPopups.push({
-                            text: popupText,
-                            x: gameState.canvas.width / 2,
-                            y: 50,
-                            alpha: 1,
-                            timer: 2000
-                        });
-                    }
-                    updateScore();
-                    updatePowerupIndicator();
-                    gameState.gameSpeed = Math.max(80, gameState.gameSpeed - 2);
-                    foodEaten = true;
-                    return false;
+                if (food.effect) {
+                    gameState.powerUpEndTimes[food.effect] = now + POWER_UP_DURATION;
+                    const popupText = {
+                        invincible: 'GOD-MODE Invincibility Active!',
+                        speedBoost: 'AHHHHHHHH Speed Boost Active!',
+                        slowMotion: 'Chilllll Slow Motion Active!'
+                    }[food.effect];
+                    gameState.powerUpPopups.push({
+                        text: popupText,
+                        x: CANVAS_WIDTH / 2,
+                        y: 50,
+                        type: food.effect
+                    });
                 }
-                return true;
-            });
+                updateScore();
+                updatePowerupIndicator();
+                gameState.gameSpeed = Math.max(MIN_GAME_SPEED, gameState.gameSpeed - 2);
+                gameState.foods = gameState.foods.filter(f => f !== food);
+                foodEaten = true;
+            }
 
             if (gameState.foods.length < 3) generateFoods(3);
             if (!foodEaten) gameState.snake.pop();
@@ -982,63 +1047,63 @@
         // Draw game
         function drawGame() {
             const ctx = gameState.ctx;
-            const gradient = ctx.createLinearGradient(0, 0, gameState.canvas.width, gameState.canvas.height);
+            const now = Date.now();
+            const gradient = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             gradient.addColorStop(0, '#2d5a27');
             gradient.addColorStop(1, '#3d7c47');
             ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height);
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
             ctx.fillStyle = '#228b22';
             gameState.grass.forEach(grass => {
                 ctx.globalAlpha = grass.fadeAlpha;
                 ctx.fillRect(grass.x, grass.y, 3, 6);
                 ctx.fillRect(grass.x + 2, grass.y - 2, 3, 6);
-                ctx.globalAlpha = 1;
             });
+            ctx.globalAlpha = 1;
 
             gameState.obstacles.forEach(obstacle => {
                 ctx.globalAlpha = obstacle.fadeAlpha;
                 ctx.fillStyle = '#666';
                 ctx.beginPath();
-                ctx.arc(obstacle.x + gameState.gridSize / 2, obstacle.y + gameState.gridSize / 2, gameState.gridSize / 2 - 2, 0, 2 * Math.PI);
+                ctx.arc(obstacle.x + GRID_SIZE / 2, obstacle.y + GRID_SIZE / 2, GRID_SIZE / 2 - 2, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.fillStyle = '#888';
                 ctx.beginPath();
-                ctx.arc(obstacle.x + gameState.gridSize / 2 - 3, obstacle.y + gameState.gridSize / 2 - 3, gameState.gridSize / 3, 0, 2 * Math.PI);
+                ctx.arc(obstacle.x + GRID_SIZE / 2 - 3, obstacle.y + GRID_SIZE / 2 - 3, GRID_SIZE / 3, 0, 2 * Math.PI);
                 ctx.fill();
-                ctx.globalAlpha = 1;
             });
+            ctx.globalAlpha = 1;
 
             gameState.foods.forEach(food => {
                 const img = images[food.type];
-                ctx.globalAlpha = 1;
                 if (img) {
-                    ctx.drawImage(img, food.x, food.y, gameState.gridSize, gameState.gridSize);
+                    ctx.drawImage(img, food.x, food.y, GRID_SIZE, GRID_SIZE);
                 } else {
                     ctx.fillStyle = food.color || '#ff0000';
-                    ctx.fillRect(food.x + 2, food.y + 2, gameState.gridSize - 4, gameState.gridSize - 4);
+                    ctx.fillRect(food.x + 2, food.y + 2, GRID_SIZE - 4, GRID_SIZE - 4);
                 }
             });
 
             gameState.snake.forEach((segment, index) => {
-                let img = !gameState.gameRunning && index === 0 ? images.snake_dead :
-                          index === 0 ? images.snake_head :
-                          index === gameState.snake.length - 1 ? images.snake_tail : images.snake_body;
-                ctx.globalAlpha = 1;
-
-                if (gameState.powerUpEndTimes.invincible > Date.now()) {
-                    ctx.filter = 'hue-rotate(60deg) brightness(1.2)';
-                } else if (gameState.powerUpEndTimes.speedBoost > Date.now()) {
-                    ctx.filter = 'hue-rotate(200deg) brightness(1.1)';
-                } else if (gameState.powerUpEndTimes.slowMotion > Date.now()) {
-                    ctx.filter = 'hue-rotate(120deg)';
+                let img;
+                if (!gameState.gameRunning && index === 0) {
+                    img = images.snake_dead;
+                } else if (gameState.powerUpEndTimes.invincible > now) {
+                    img = index === 0 ? images.snake_invincible_head :
+                          index === gameState.snake.length - 1 ? images.snake_invincible_tail : images.snake_invincible_body;
+                } else if (gameState.powerUpEndTimes.speedBoost > now) {
+                    img = index === 0 ? images.snake_speed_head :
+                          index === gameState.snake.length - 1 ? images.snake_speed_tail : images.snake_speed_body;
+                } else if (gameState.powerUpEndTimes.slowMotion > now) {
+                    img = index === 0 ? images.snake_slow_head :
+                          index === gameState.snake.length - 1 ? images.snake_slow_tail : images.snake_slow_body;
                 } else {
-                    ctx.filter = '';
+                    img = index === 0 ? images.snake_head :
+                          index === gameState.snake.length - 1 ? images.snake_tail : images.snake_body;
                 }
 
                 const size = 22;
-                const offset = 2;
-
                 let dx = 0, dy = 0;
                 if (index === 0) {
                     dx = gameState.direction.x;
@@ -1060,13 +1125,10 @@
                     ctx.fillRect(-size / 2, -size / 2, size, size);
                 }
                 ctx.restore();
-
-                ctx.filter = 'none';
             });
 
-           
             ctx.fillStyle = '#ffffff';
-            ctx.font = '11.5px "Press Start 2P"';
+            ctx.font = '14px "Press Start 2P"';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             gameState.scorePopups = gameState.scorePopups.filter(popup => {
@@ -1076,62 +1138,76 @@
                 popup.y -= 0.5;
                 if (popup.alpha > 0) {
                     ctx.globalAlpha = popup.alpha;
-                    // First shadow: 4px 4px #ff0000
                     ctx.shadowColor = '#000000';
                     ctx.shadowOffsetX = 1;
                     ctx.shadowOffsetY = 1;
-                    ctx.fillText(popup.text, popup.x + gameState.gridSize / 2, popup.y);
-                    // Second shadow: -4px -4px #ab47bc
+                    ctx.fillText(popup.text, popup.x + GRID_SIZE / 2, popup.y);
                     ctx.shadowColor = '#000000';
                     ctx.shadowOffsetX = -1;
                     ctx.shadowOffsetY = -1;
-                    ctx.fillText(popup.text, popup.x + gameState.gridSize / 2, popup.y);
-                    ctx.globalAlpha = 1;
+                    ctx.fillText(popup.text, popup.x + GRID_SIZE / 2, popup.y);
                 }
                 return popup.timer > 0;
             });
+            ctx.globalAlpha = 1;
             ctx.shadowColor = 'transparent';
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
 
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '14px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             gameState.powerUpPopups = gameState.powerUpPopups.filter(popup => {
-                popup.timer -= 16.67;
-                popup.alpha = Math.max(0, popup.alpha - 0.01);
-                if (popup.alpha > 0) {
-                    ctx.globalAlpha = popup.alpha;
-                    ctx.fillText(popup.text, popup.x, popup.y);
-                    ctx.globalAlpha = 1;
+                const endTime = gameState.powerUpEndTimes[popup.type] || 0;
+                if (endTime <= now) return false;
+                const remaining = endTime - now;
+                const t = remaining / POWER_UP_DURATION;
+                const alpha = t * t;
+                const freq = popup.type === 'slowMotion' ? 0.05 : popup.type === 'speedBoost' ? 0.15 : 0.1;
+                const amp = popup.type === 'slowMotion' ? 3 : popup.type === 'speedBoost' ? 5 : 4;
+                const offset = Math.sin(t * Math.PI * 2 * freq) * amp * t;
+                if (alpha > 0) {
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = popup.type === 'slowMotion' ? '#228B22' : popup.type === 'speedBoost' ? '#FFFF00' : '#FFFFFF';
+                    ctx.shadowColor = popup.type === 'invincible' ? '#FFD700' : '#000000';
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+                    ctx.fillText(popup.text, popup.x, popup.y + offset);
                 }
-                return popup.timer > 0;
+                return true;
             });
+            ctx.globalAlpha = 1;
+            ctx.shadowColor = 'transparent';
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
         }
 
         // Update score
         function updateScore() {
-            document.getElementById('gameScore').textContent = gameState.score;
-            document.getElementById('gameHighScore').textContent = gameState.highScore;
+            elements.gameScore.textContent = gameState.score;
+            elements.gameHighScore.textContent = gameState.highScore;
         }
 
         // Update powerup indicator
         let powerupUpdateFrame;
         function updatePowerupIndicator() {
-            const indicator = document.getElementById('powerupIndicator');
             const now = Date.now();
             if (gameState.powerUpEndTimes.invincible > now) {
                 const seconds = Math.ceil((gameState.powerUpEndTimes.invincible - now) / 1000);
-                indicator.textContent = `Invincible: ${seconds}s`;
-                indicator.className = 'powerup-indicator invincible glow-effect';
-            } else if (gameState.powerUpEndTimes.speedBoost > now) {
-                const seconds = Math.ceil((gameState.powerUpEndTimes.speedBoost - now) / 1000);
-                indicator.textContent = `Speed: ${seconds}s`;
-                indicator.className = 'powerup-indicator speed-boost glow-effect';
+                elements.powerupIndicator.textContent = `Invincible: ${seconds}s`;
+                elements.powerupIndicator.className = 'powerup-indicator invincible glow-effect';
             } else if (gameState.powerUpEndTimes.slowMotion > now) {
                 const seconds = Math.ceil((gameState.powerUpEndTimes.slowMotion - now) / 1000);
-                indicator.textContent = `Slow: ${seconds}s`;
-                indicator.className = 'powerup-indicator slow-motion glow-effect';
+                elements.powerupIndicator.textContent = `Slow: ${seconds}s`;
+                elements.powerupIndicator.className = 'powerup-indicator slow-motion glow-effect';
+            } else if (gameState.powerUpEndTimes.speedBoost > now) {
+                const seconds = Math.ceil((gameState.powerUpEndTimes.speedBoost - now) / 1000);
+                elements.powerupIndicator.textContent = `Speed: ${seconds}s`;
+                elements.powerupIndicator.className = 'powerup-indicator speed-boost glow-effect';
             } else {
-                indicator.textContent = 'Ready to Play!';
-                indicator.className = 'powerup-indicator';
+                elements.powerupIndicator.textContent = 'Ready to Play!';
+                elements.powerupIndicator.className = 'powerup-indicator';
             }
             if (gameState.gameRunning) {
                 powerupUpdateFrame = requestAnimationFrame(updatePowerupIndicator);
@@ -1140,31 +1216,35 @@
 
         // Game over
         function gameOver() {
-            console.log('Game over');
+            log('Game over');
             gameState.gameRunning = false;
-            drawGame()
+            drawGame();
             cancelAnimationFrame(powerupUpdateFrame);
             if (gameState.score > gameState.highScore) {
                 gameState.highScore = gameState.score;
                 localStorage.setItem('snakeHighScore', gameState.highScore.toString());
-                document.getElementById('newHighScore').style.display = 'block';
+                elements.newHighScore.style.display = 'block';
             } else {
-                document.getElementById('newHighScore').style.display = 'none';
+                elements.newHighScore.style.display = 'none';
             }
-            document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('gameOverScreen').style.display = 'block';
+            elements.finalScore.textContent = gameState.score;
+            elements.gameOverScreen.style.display = 'block';
             stopCamera();
         }
 
         // Game loop
-        function gameLoop() {
+        let lastFrameTime = 0;
+        function gameLoop(timestamp) {
             if (!gameState.gameRunning) return;
             const now = Date.now();
             let currentSpeed = gameState.gameSpeed;
             if (gameState.powerUpEndTimes.slowMotion > now) currentSpeed *= 2;
             if (gameState.powerUpEndTimes.speedBoost > now) currentSpeed *= 0.5;
-            updateGame();
-            setTimeout(gameLoop, currentSpeed);
+            if (timestamp - lastFrameTime >= currentSpeed) {
+                updateGame();
+                lastFrameTime = timestamp;
+            }
+            requestAnimationFrame(gameLoop);
         }
 
         // Keyboard controls
@@ -1173,72 +1253,44 @@
             const key = e.key.toLowerCase();
             const currentDir = gameState.direction;
             if ((key === 'w' || key === 'arrowup') && currentDir.y === 0) {
-                gameState.direction = { x: 0, y: -gameState.gridSize };
+                gameState.direction = { x: 0, y: -GRID_SIZE };
             } else if ((key === 's' || key === 'arrowdown') && currentDir.y === 0) {
-                gameState.direction = { x: 0, y: gameState.gridSize };
+                gameState.direction = { x: 0, y: GRID_SIZE };
             } else if ((key === 'a' || key === 'arrowleft') && currentDir.x === 0) {
-                gameState.direction = { x: -gameState.gridSize, y: 0 };
+                gameState.direction = { x: -GRID_SIZE, y: 0 };
             } else if ((key === 'd' || key === 'arrowright') && currentDir.x === 0) {
-                gameState.direction = { x: gameState.gridSize, y: 0 };
+                gameState.direction = { x: GRID_SIZE, y: 0 };
             }
         });
 
         // Process gesture
         function processGesture(gesture) {
             if (!gameState.gameRunning || gameState.controlMethod !== 'gesture') return;
-            console.log(`Processing gesture: ${gesture}`);
+            log(`Processing gesture: ${gesture}`);
             const currentDir = gameState.direction;
             if (gesture === 'up' && currentDir.y === 0) {
-                gameState.direction = { x: 0, y: -gameState.gridSize };
+                gameState.direction = { x: 0, y: -GRID_SIZE };
             } else if (gesture === 'down' && currentDir.y === 0) {
-                gameState.direction = { x: 0, y: gameState.gridSize };
+                gameState.direction = { x: 0, y: GRID_SIZE };
             } else if (gesture === 'left' && currentDir.x === 0) {
-                gameState.direction = { x: -gameState.gridSize, y: 0 };
+                gameState.direction = { x: -GRID_SIZE, y: 0 };
             } else if (gesture === 'right' && currentDir.x === 0) {
-                gameState.direction = { x: gameState.gridSize, y: 0 };
+                gameState.direction = { x: GRID_SIZE, y: 0 };
             }
         }
 
-    
-
         // Reset game state
         function resetGameState() {
-            console.log('Resetting game state...');
+            log('Resetting game state...');
             gameState.gameRunning = false;
             cancelAnimationFrame(powerupUpdateFrame);
-            document.getElementById('gameOverScreen').style.display = 'none';
+            elements.gameOverScreen.style.display = 'none';
             stopCamera();
-        }
-
-        // Show main menu
-        function showMainMenu() {
-            console.log('Showing main menu');
-            resetGameState();
-            showScreen('mainMenu');
-            updateHighScoreDisplay();
-        }
-
-        // Show control selection
-        function showControlSelection() {
-            console.log('Showing control selection');
-            showScreen('controlSelection');
-        }
-
-        // Show tutorial
-        function showTutorial() {
-            console.log('Showing tutorial');
-            showScreen('tutorial');
-        }
-
-        // Show creator info
-        function showCreatorInfo() {
-            console.log('Showing creator info');
-            showScreen('creatorInfo');
         }
 
         // Select control method
         function selectControl(method) {
-            console.log(`Selected control method: ${method}`);
+            log(`Selected control method: ${method}`);
             gameState.controlMethod = method;
             document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById(method + 'Btn').classList.add('selected');
@@ -1246,54 +1298,57 @@
 
         // Start game
         function startGame() {
-            console.log('Starting game');
+            log('Starting game');
             resetGameState();
             showScreen('gameScreen');
             startNewGame();
             gameState.gameRunning = true;
             if (gameState.controlMethod === 'gesture') startCamera();
             updatePowerupIndicator();
-            gameLoop();
+            lastFrameTime = 0;
+            requestAnimationFrame(gameLoop);
         }
 
+        //COLOUR CHANGE HERE
         // Restart game
         function restartGame() {
-            console.log('Restarting game');
-            document.getElementById('gameOverScreen').style.display = 'none';
+            log('Restarting game');
+            elements.gameOverScreen.style.display = 'none';
             startNewGame();
             gameState.gameRunning = true;
             if (gameState.controlMethod === 'gesture') startCamera();
             updatePowerupIndicator();
-            gameLoop();
+            lastFrameTime = 0;
+            requestAnimationFrame(gameLoop);
         }
 
         // Update high score display
         function updateHighScoreDisplay() {
-            document.getElementById('highScore').textContent = gameState.highScore;
+            elements.highScore.textContent = gameState.highScore;
         }
 
         // Toggle gesture demo
         function toggleGestureDemo() {
-            console.log('Toggling gesture demo');
-            const demo = document.getElementById('gestureDemo');
+            log('Toggling gesture demo');
             const btn = event.target;
-            if (demo.style.display === 'none') {
-                demo.style.display = 'block';
+            if (elements.gestureDemo.style.display === 'none') {
+                elements.gestureDemo.style.display = 'block';
                 btn.textContent = 'Hide Gesture Test';
                 if (!mediaPipeLoaded) {
                     initMediaPipe().then(success => {
                         if (success) {
                             startCamera();
                         } else {
-                            const statusElement = document.getElementById('gestureStatus');
-                            if (statusElement) statusElement.textContent = 'MediaPipe failed to load. Using keyboard controls only.';
+                            if (elements.gestureStatus) {
+                                elements.gestureStatus.textContent = 'MediaPipe failed to load. Using keyboard controls only.';
+                            }
                         }
                     });
                 } else {
                     startCamera();
                 }
             } else {
-                demo.style.display = 'none';
+                elements.gestureDemo.style.display = 'none';
                 btn.textContent = 'Test Gestures';
                 stopCamera();
             }
@@ -1301,20 +1356,16 @@
 
         // Initialize everything
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing game...');
+            log('DOM loaded, initializing game...');
             initGame();
             initMediaPipe().then(success => {
                 if (!success) {
-                    console.log('MediaPipe not available - keyboard controls only');
-                    const gestureBtn = document.getElementById('gestureBtn');
-                    if (gestureBtn) gestureBtn.style.display = 'none';
+                    log('MediaPipe not available - keyboard controls only');
+                    if (elements.gestureBtn) elements.gestureBtn.style.display = 'none';
                 }
             }).catch(error => {
-                console.error('MediaPipe initialization error:', error);
-                const gestureBtn = document.getElementById('gestureBtn');
-                if (gestureBtn) {
-                    gestureBtn.style.display = 'none';
-                }
+                log('MediaPipe initialization error:', error);
+                if (elements.gestureBtn) elements.gestureBtn.style.display = 'none';
             });
         });
 
@@ -1326,7 +1377,7 @@
             }
         });
 
-        console.log('Run this on a local server (e.g., python -m http.server 8000) to avoid CORS issues.');
+        log('Run this on a local server (e.g., python -m http.server 8000) to avoid CORS issues.');
     </script>
 </body>
 </html>
